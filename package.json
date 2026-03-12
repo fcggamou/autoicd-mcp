@@ -1,0 +1,78 @@
+{
+  "name": "autoicd-mcp",
+  "version": "0.1.1",
+  "description": "MCP server for ICD-10 medical coding — give AI assistants the ability to code clinical text to ICD-10-CM diagnoses, search 74,000+ codes, and de-identify PHI via the AutoICD API. Works with Claude Desktop, Cursor, VS Code, Windsurf, and any MCP-compatible client.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "autoicd-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "icd-10",
+    "icd10",
+    "icd-10-cm",
+    "icd-10-api",
+    "icd-10-lookup",
+    "icd-10-search",
+    "icd-10-code",
+    "medical-coding",
+    "medical-billing",
+    "clinical-nlp",
+    "clinical-text",
+    "diagnosis-codes",
+    "healthcare",
+    "health-tech",
+    "ehr",
+    "emr",
+    "phi-deidentification",
+    "hipaa",
+    "snomed-ct",
+    "umls",
+    "claude-desktop",
+    "cursor",
+    "vscode",
+    "windsurf",
+    "ai-tools",
+    "autoicd",
+    "autoicd-api"
+  ],
+  "author": "AutoICD",
+  "license": "MIT",
+  "homepage": "https://autoicdapi.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcggamou/autoicd-mcp"
+  },
+  "funding": "https://autoicdapi.com",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "autoicd-js": "^0.4.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "esbuild": "^0.27.3",
+    "tsup": "^8.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  }
+}
