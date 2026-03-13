@@ -140,6 +140,15 @@ export function formatCodeDetail(detail: CodeDetailFull): string {
     }
   }
 
+  if (detail.icd11_mappings && detail.icd11_mappings.length > 0) {
+    lines.push("\n**ICD-11 Crosswalk Mappings:**");
+    lines.push("| ICD-11 Code | Description | Mapping Type |");
+    lines.push("|-------------|-------------|--------------|");
+    for (const mapping of detail.icd11_mappings) {
+      lines.push(`| \`${mapping.code}\` | ${mapping.description} | ${mapping.mapping_type} |`);
+    }
+  }
+
   return lines.join("\n");
 }
 

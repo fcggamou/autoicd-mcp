@@ -4,6 +4,8 @@ import type {
   CodeSearchResponse,
   CodeDetailFull,
   AnonymizeResponse,
+  ICD11CodeSearchResponse,
+  ICD11CodeDetailFull,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -16,6 +18,8 @@ import {
   formatSearchResponse,
   formatCodeDetail,
   formatAnonymizeResponse,
+  formatICD11SearchResponse,
+  formatICD11CodeDetail,
   formatError,
 } from "../src/format.js";
 
@@ -190,6 +194,103 @@ describe("formatCodeDetail", () => {
   it("skips empty synonym sources", () => {
     const result = formatCodeDetail(mockCodeDetail);
     expect(result).not.toContain("Clinical Terms");
+  });
+});
+
+const mockICD11SearchResponse: ICD11CodeSearchResponse = {
+  query: "diabetes",
+  count: 1,
+  codes: [
+    {
+      code: "5A11",
+      short_description: "Type 2 diabetes mellitus",
+      long_description: "Type 2 diabetes mellitus",
+      foundation_uri: "http://id.who.int/icd/entity/1691003785",
+    },
+  ],
+};
+
+const mockICD11CodeDetail: ICD11CodeDetailFull = {
+  code: "5A11",
+  short_description: "Type 2 diabetes mellitus",
+  long_description: "Type 2 diabetes mellitus",
+  foundation_uri: "http://id.who.int/icd/entity/1691003785",
+  synonyms: { index_terms: ["DM2", "NIDDM"] },
+  cross_references: { snomed: ["44054006"], umls: ["C0011860"] },
+  parent: {
+    code: "5A1",
+    short_description: "Diabetes mellitus",
+    long_description: "Diabetes mellitus",
+    foundation_uri: null,
+  },
+  children: [],
+  chapter: { number: 5, title: "Endocrine, nutritional or metabolic diseases" },
+  block: "5A10-5A14",
+  icd10_mappings: [
+    {
+      code: "E11.9",
+      description: "Type 2 diabetes mellitus without complications",
+      mapping_type: "equivalent",
+      system: "icd10",
+    },
+  ],
+};
+
+describe("formatICD11SearchResponse", () => {
+  it("formats ICD-11 search results as table", () => {
+    const result = formatICD11SearchResponse(mockICD11SearchResponse);
+    expect(result).toContain("ICD-11 Code Search Results");
+    expect(result).toContain('"diabetes"');
+    expect(result).toContain("1** result(s)");
+    expect(result).toContain("`5A11`");
+    expect(result).toContain("Type 2 diabetes mellitus");
+    expect(result).toContain("http://id.who.int/icd/entity/1691003785");
+  });
+
+  it("handles empty results", () => {
+    const response: ICD11CodeSearchResponse = { query: "xyz", count: 0, codes: [] };
+    const result = formatICD11SearchResponse(response);
+    expect(result).toContain("No matching codes found");
+  });
+});
+
+describe("formatICD11CodeDetail", () => {
+  it("formats ICD-11 code with full details", () => {
+    const result = formatICD11CodeDetail(mockICD11CodeDetail);
+    expect(result).toContain("`5A11`");
+    expect(result).toContain("Type 2 diabetes mellitus");
+    expect(result).toContain("http://id.who.int/icd/entity/1691003785");
+    expect(result).toContain("Chapter 5");
+    expect(result).toContain("Endocrine, nutritional or metabolic diseases");
+    expect(result).toContain("5A10-5A14");
+    expect(result).toContain("`5A1`");
+    expect(result).toContain("Diabetes mellitus");
+  });
+
+  it("formats ICD-10 crosswalk mappings", () => {
+    const result = formatICD11CodeDetail(mockICD11CodeDetail);
+    expect(result).toContain("ICD-10 Crosswalk Mappings");
+    expect(result).toContain("`E11.9`");
+    expect(result).toContain("equivalent");
+  });
+
+  it("formats synonyms and cross-references", () => {
+    const result = formatICD11CodeDetail(mockICD11CodeDetail);
+    expect(result).toContain("DM2");
+    expect(result).toContain("NIDDM");
+    expect(result).toContain("SNOMED CT");
+    expect(result).toContain("44054006");
+    expect(result).toContain("UMLS");
+    expect(result).toContain("C0011860");
+  });
+
+  it("omits foundation URI when null", () => {
+    const detail: ICD11CodeDetailFull = {
+      ...mockICD11CodeDetail,
+      foundation_uri: null,
+    };
+    const result = formatICD11CodeDetail(detail);
+    expect(result).not.toContain("Foundation URI");
   });
 });
 
