@@ -6,6 +6,8 @@ import {
   formatSearchResponse,
   formatCodeDetail,
   formatAnonymizeResponse,
+  formatICD11SearchResponse,
+  formatICD11CodeDetail,
   formatError,
 } from "./format.js";
 
@@ -21,9 +23,9 @@ export function registerTools(server: McpServer, client: AutoICD): void {
   server.registerTool(
     "code_diagnosis",
     {
-      title: "Code Clinical Text to ICD-10",
+      title: "Code Clinical Text to ICD-10/ICD-11",
       description:
-        "Extract medical diagnoses from clinical text and map them to ICD-10-CM codes. " +
+        "Extract medical diagnoses from clinical text and map them to ICD-10-CM or ICD-11 codes. " +
         "Identifies conditions, negations, historical mentions, family history, and severity. " +
         "Returns ranked code candidates with confidence scores.",
       inputSchema: {
@@ -37,11 +39,15 @@ export function registerTools(server: McpServer, client: AutoICD): void {
           .min(1)
           .max(25)
           .default(5)
-          .describe("Number of top ICD-10 candidates per entity (1-25, default: 5)"),
+          .describe("Number of top code candidates per entity (1-25, default: 5)"),
         include_negated: z
           .boolean()
           .default(true)
           .describe("Include negated entities in results (default: true)"),
+        output_system: z
+          .enum(["icd10", "icd11"])
+          .default("icd10")
+          .describe("Output coding system: 'icd10' (default) or 'icd11'"),
       },
       annotations: {
         readOnlyHint: true,
@@ -54,6 +60,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
         const result = await client.code(args.text, {
           topK: args.top_k,
           includeNegated: args.include_negated,
+          outputSystem: args.output_system,
         });
         return ok(formatCodingResponse(result));
       } catch (error) {
@@ -126,6 +133,69 @@ export function registerTools(server: McpServer, client: AutoICD): void {
       try {
         const result = await client.codes.get(args.code);
         return ok(formatCodeDetail(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "search_icd11_codes",
+    {
+      title: "Search ICD-11 Codes",
+      description:
+        "Search the ICD-11 code directory by description text. " +
+        "Returns matching codes with descriptions and Foundation URIs. " +
+        "Useful for finding specific ICD-11 diagnosis codes by keyword.",
+      inputSchema: {
+        query: z.string().min(1).describe("Search query to match against ICD-11 code descriptions"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(10)
+          .describe("Maximum results (1-100, default: 10)"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.icd11.search(args.query, {
+          limit: args.limit,
+        });
+        return ok(formatICD11SearchResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "get_icd11_code",
+    {
+      title: "Get ICD-11 Code Details",
+      description:
+        "Get comprehensive details for a specific ICD-11 code including " +
+        "descriptions, Foundation URI, synonyms, parent/child hierarchy, " +
+        "chapter classification, and ICD-10 crosswalk mappings.",
+      inputSchema: {
+        code: z.string().min(1).describe("ICD-11 code (e.g., '5A11', 'BA00', 'CA40.0')"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.icd11.get(args.code);
+        return ok(formatICD11CodeDetail(result));
       } catch (error) {
         return fail(error);
       }
