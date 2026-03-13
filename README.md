@@ -1,15 +1,16 @@
 # AutoICD MCP Server
 
-> Give AI assistants the power of medical coding — ICD-10-CM diagnosis coding, code search, and PHI de-identification via the [AutoICD API](https://autoicdapi.com).
+> Give AI assistants the power of medical coding — ICD-10-CM and ICD-11 diagnosis coding, code search, crosswalk, and PHI de-identification via the [AutoICD API](https://autoicdapi.com).
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for automated ICD-10 medical coding.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for automated ICD-10 and ICD-11 medical coding.
 
 ## Why AutoICD API?
 
 | Feature | Details |
 |---------|---------|
-| **AI-Powered Coding** | Clinical text → ICD-10-CM codes with NLP entity extraction |
-| **74,000+ Codes** | Full ICD-10-CM 2025 code set with descriptions and hierarchy |
+| **AI-Powered Coding** | Clinical text → ICD-10-CM or ICD-11 codes with NLP entity extraction |
+| **74,000+ ICD-10 Codes** | Full ICD-10-CM 2025 code set with descriptions and hierarchy |
+| **ICD-11 Support** | Search and look up ICD-11 codes with full ICD-10 ↔ ICD-11 crosswalk |
 | **Negation Detection** | Identifies negated, historical, uncertain, and family history mentions |
 | **Confidence Scoring** | High/moderate confidence labels with cosine similarity scores |
 | **Spell Correction** | Handles misspelled medical terms automatically |
@@ -139,7 +140,34 @@ Get comprehensive details for a specific ICD-10-CM code.
 - _"Is E11.9 a billable code? What are its synonyms?"_
 - _"Show me the SNOMED CT mappings for code J44.1"_
 
-Returns descriptions, billable status, SNOMED CT and UMLS synonyms, parent/child hierarchy, and chapter classification.
+Returns descriptions, billable status, SNOMED CT and UMLS synonyms, parent/child hierarchy, chapter classification, and ICD-11 crosswalk mappings.
+
+### `search_icd11_codes`
+
+Search the ICD-11 code set by description.
+
+**Parameters:**
+- `query` (required) — Search text to match against ICD-11 code descriptions
+- `limit` (optional, 1-100, default: 10) — Maximum results
+
+**Example prompts:**
+- _"Search for ICD-11 codes related to diabetes"_
+- _"Find ICD-11 codes for respiratory infections"_
+- _"What are the ICD-11 codes for anxiety disorders?"_
+
+### `get_icd11_code`
+
+Get comprehensive details for a specific ICD-11 code, including ICD-10 crosswalk mappings.
+
+**Parameters:**
+- `code` (required) — ICD-11 code (e.g., "5A11", "BA00", "CA40.0")
+
+**Example prompts:**
+- _"Look up ICD-11 code 5A11"_
+- _"What is the ICD-10 equivalent of ICD-11 code BA00?"_
+- _"Show me the details and crosswalk for ICD-11 code CA40.0"_
+
+Returns descriptions, Foundation URI, synonyms, parent/child hierarchy, chapter classification, and ICD-10 crosswalk mappings.
 
 ### `anonymize`
 
@@ -199,6 +227,8 @@ Browse the full [ICD-10-CM Code Directory](https://autoicdapi.com/icd10) or find
 - **AutoICD API** — [autoicdapi.com](https://autoicdapi.com)
 - **API Documentation** — [autoicdapi.com/docs](https://autoicdapi.com/docs)
 - **ICD-10-CM Code Directory** — [autoicdapi.com/icd10](https://autoicdapi.com/icd10) — Browse all 74,000+ codes
+- **ICD-11 Code Directory** — [autoicdapi.com/icd11](https://autoicdapi.com/icd11) — Browse the WHO ICD-11 MMS hierarchy
+- **ICD-10 ↔ ICD-11 Crosswalk** — [autoicdapi.com/icd10-to-icd11](https://autoicdapi.com/icd10-to-icd11) — Map codes between revisions
 - **ICD-10 Codes by Condition** — [autoicdapi.com/icd10/condition](https://autoicdapi.com/icd10/condition) — Find codes for common conditions
 - **TypeScript SDK** — [npmjs.com/package/autoicd](https://www.npmjs.com/package/autoicd)
 - **Python SDK** — [pypi.org/project/autoicd](https://pypi.org/project/autoicd/)

@@ -1,7 +1,7 @@
 {
   "name": "autoicd-mcp",
-  "version": "0.1.1",
-  "description": "MCP server for ICD-10 medical coding — give AI assistants the ability to code clinical text to ICD-10-CM diagnoses, search 74,000+ codes, and de-identify PHI via the AutoICD API. Works with Claude Desktop, Cursor, VS Code, Windsurf, and any MCP-compatible client.",
+  "version": "0.2.0",
+  "description": "MCP server for ICD-10 & ICD-11 medical coding — give AI assistants the ability to code clinical text to ICD-10-CM and ICD-11 diagnoses, search 74,000+ codes, crosswalk between ICD-10/ICD-11, and de-identify PHI via the AutoICD API. Works with Claude Desktop, Cursor, VS Code, Windsurf, and any MCP-compatible client.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -43,6 +43,10 @@
     "hipaa",
     "snomed-ct",
     "umls",
+    "icd-11",
+    "icd11",
+    "icd-11-api",
+    "icd-10-icd-11-crosswalk",
     "claude-desktop",
     "cursor",
     "vscode",
@@ -64,7 +68,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "autoicd-js": "^0.4.0",
+    "autoicd-js": "^0.5.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {

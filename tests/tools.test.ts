@@ -6,6 +6,8 @@ import type {
   CodeSearchResponse,
   CodeDetailFull,
   AnonymizeResponse,
+  ICD11CodeSearchResponse,
+  ICD11CodeDetailFull,
 } from "autoicd-js";
 import { registerTools } from "../src/tools.js";
 
@@ -72,11 +74,54 @@ const mockAnonymizeResponse: AnonymizeResponse = {
   ],
 };
 
+const mockICD11SearchResponse: ICD11CodeSearchResponse = {
+  query: "diabetes",
+  count: 1,
+  codes: [
+    {
+      code: "5A11",
+      short_description: "Type 2 diabetes mellitus",
+      long_description: "Type 2 diabetes mellitus",
+      foundation_uri: "http://id.who.int/icd/entity/1691003785",
+    },
+  ],
+};
+
+const mockICD11CodeDetail: ICD11CodeDetailFull = {
+  code: "5A11",
+  short_description: "Type 2 diabetes mellitus",
+  long_description: "Type 2 diabetes mellitus",
+  foundation_uri: "http://id.who.int/icd/entity/1691003785",
+  synonyms: { index_terms: ["DM2", "NIDDM"] },
+  cross_references: { snomed: ["44054006"], umls: ["C0011860"] },
+  parent: {
+    code: "5A1",
+    short_description: "Diabetes mellitus",
+    long_description: "Diabetes mellitus",
+    foundation_uri: null,
+  },
+  children: [],
+  chapter: { number: 5, title: "Endocrine, nutritional or metabolic diseases" },
+  block: "5A10-5A14",
+  icd10_mappings: [
+    {
+      code: "E11.9",
+      description: "Type 2 diabetes mellitus without complications",
+      mapping_type: "equivalent",
+      system: "icd10",
+    },
+  ],
+};
+
 function createMockClient() {
   return {
     code: vi.fn(),
     anonymize: vi.fn(),
     codes: {
+      search: vi.fn(),
+      get: vi.fn(),
+    },
+    icd11: {
       search: vi.fn(),
       get: vi.fn(),
     },
@@ -106,13 +151,15 @@ describe("registerTools", () => {
     registerTools(server, client);
   });
 
-  it("registers all 4 tools", () => {
+  it("registers all 6 tools", () => {
     const tools = (server as any)._registeredTools as Record<string, any>;
     expect(tools["code_diagnosis"]).toBeDefined();
     expect(tools["search_codes"]).toBeDefined();
     expect(tools["get_code"]).toBeDefined();
+    expect(tools["search_icd11_codes"]).toBeDefined();
+    expect(tools["get_icd11_code"]).toBeDefined();
     expect(tools["anonymize"]).toBeDefined();
-    expect(Object.keys(tools)).toHaveLength(4);
+    expect(Object.keys(tools)).toHaveLength(6);
   });
 
   describe("code_diagnosis", () => {
@@ -175,6 +222,41 @@ describe("registerTools", () => {
     it("returns error content on not found", async () => {
       (client.codes.get as any).mockRejectedValue(new NotFoundError("Code not found"));
       const result = await callTool(server, "get_code", { code: "XYZ" });
+
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain("Not found");
+    });
+  });
+
+  describe("search_icd11_codes", () => {
+    it("calls client.icd11.search and returns formatted result", async () => {
+      (client.icd11.search as any).mockResolvedValue(mockICD11SearchResponse);
+      const result = await callTool(server, "search_icd11_codes", {
+        query: "diabetes",
+        limit: 10,
+      });
+
+      expect(client.icd11.search).toHaveBeenCalledWith("diabetes", {
+        limit: 10,
+      });
+      expect(result.content[0].text).toContain("5A11");
+      expect(result.content[0].text).toContain("ICD-11");
+    });
+  });
+
+  describe("get_icd11_code", () => {
+    it("calls client.icd11.get and returns formatted result", async () => {
+      (client.icd11.get as any).mockResolvedValue(mockICD11CodeDetail);
+      const result = await callTool(server, "get_icd11_code", { code: "5A11" });
+
+      expect(client.icd11.get).toHaveBeenCalledWith("5A11");
+      expect(result.content[0].text).toContain("5A11");
+      expect(result.content[0].text).toContain("Type 2 diabetes mellitus");
+    });
+
+    it("returns error content on not found", async () => {
+      (client.icd11.get as any).mockRejectedValue(new NotFoundError("Code not found"));
+      const result = await callTool(server, "get_icd11_code", { code: "INVALID" });
 
       expect(result.isError).toBe(true);
       expect(result.content[0].text).toContain("Not found");

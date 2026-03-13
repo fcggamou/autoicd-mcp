@@ -5,6 +5,8 @@ import type {
   CodeSearchResponse,
   CodeDetailFull,
   AnonymizeResponse,
+  ICD11CodeSearchResponse,
+  ICD11CodeDetailFull,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -138,6 +140,15 @@ export function formatCodeDetail(detail: CodeDetailFull): string {
     }
   }
 
+  if (detail.icd11_mappings && detail.icd11_mappings.length > 0) {
+    lines.push("\n**ICD-11 Crosswalk Mappings:**");
+    lines.push("| ICD-11 Code | Description | Mapping Type |");
+    lines.push("|-------------|-------------|--------------|");
+    for (const mapping of detail.icd11_mappings) {
+      lines.push(`| \`${mapping.code}\` | ${mapping.description} | ${mapping.mapping_type} |`);
+    }
+  }
+
   return lines.join("\n");
 }
 
@@ -152,6 +163,90 @@ function sourceLabel(source: string): string {
     default:
       return source;
   }
+}
+
+export function formatICD11SearchResponse(response: ICD11CodeSearchResponse): string {
+  const lines: string[] = [];
+  lines.push("## ICD-11 Code Search Results\n");
+  lines.push(`**Query:** "${response.query}" — **${response.count}** result(s)\n`);
+
+  if (response.codes.length === 0) {
+    lines.push("No matching codes found.");
+    return lines.join("\n");
+  }
+
+  lines.push("| Code | Description | Foundation URI |");
+  lines.push("|------|-------------|----------------|");
+  for (const code of response.codes) {
+    const uri = code.foundation_uri ?? "—";
+    lines.push(`| \`${code.code}\` | ${code.short_description} | ${uri} |`);
+  }
+
+  return lines.join("\n");
+}
+
+export function formatICD11CodeDetail(detail: ICD11CodeDetailFull): string {
+  const lines: string[] = [];
+  lines.push(`## \`${detail.code}\` — ${detail.short_description}\n`);
+  lines.push(`**Full description:** ${detail.long_description}`);
+  if (detail.foundation_uri) {
+    lines.push(`**Foundation URI:** ${detail.foundation_uri}`);
+  }
+
+  if (detail.chapter) {
+    lines.push(
+      `**Chapter ${detail.chapter.number}:** ${detail.chapter.title}`
+    );
+  }
+  if (detail.block) {
+    lines.push(`**Block:** ${detail.block}`);
+  }
+
+  if (detail.parent) {
+    lines.push(
+      `\n**Parent:** \`${detail.parent.code}\` — ${detail.parent.short_description}`
+    );
+  }
+
+  if (detail.children.length > 0) {
+    lines.push(`\n**Child codes (${detail.children.length}):**`);
+    for (const child of detail.children) {
+      lines.push(`- \`${child.code}\` — ${child.short_description}`);
+    }
+  }
+
+  const synonymSources = Object.entries(detail.synonyms).filter(
+    ([, terms]) => terms.length > 0
+  );
+  if (synonymSources.length > 0) {
+    lines.push("\n**Synonyms:**");
+    for (const [source, terms] of synonymSources) {
+      const label = sourceLabel(source);
+      lines.push(`- **${label}:** ${terms.join(", ")}`);
+    }
+  }
+
+  const crossRefSources = Object.entries(detail.cross_references).filter(
+    ([, ids]) => ids.length > 0
+  );
+  if (crossRefSources.length > 0) {
+    lines.push("\n**Cross-references:**");
+    for (const [source, ids] of crossRefSources) {
+      const label = sourceLabel(source);
+      lines.push(`- **${label}:** ${ids.join(", ")}`);
+    }
+  }
+
+  if (detail.icd10_mappings.length > 0) {
+    lines.push("\n**ICD-10 Crosswalk Mappings:**");
+    lines.push("| ICD-10 Code | Description | Mapping Type |");
+    lines.push("|-------------|-------------|--------------|");
+    for (const mapping of detail.icd10_mappings) {
+      lines.push(`| \`${mapping.code}\` | ${mapping.description} | ${mapping.mapping_type} |`);
+    }
+  }
+
+  return lines.join("\n");
 }
 
 export function formatAnonymizeResponse(response: AnonymizeResponse): string {
