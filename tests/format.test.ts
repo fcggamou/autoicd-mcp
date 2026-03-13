@@ -103,6 +103,7 @@ const mockCodeDetail: CodeDetailFull = {
     title: "Endocrine, nutritional and metabolic diseases",
   },
   block: "E08-E13",
+  icd11_mappings: [],
 };
 
 const mockAnonymizeResponse: AnonymizeResponse = {

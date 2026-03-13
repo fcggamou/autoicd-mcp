@@ -63,6 +63,7 @@ const mockCodeDetail: CodeDetailFull = {
   children: [],
   chapter: { number: 4, range: "E00-E89", title: "Endocrine diseases" },
   block: "E08-E13",
+  icd11_mappings: [],
 };
 
 const mockAnonymizeResponse: AnonymizeResponse = {
