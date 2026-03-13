@@ -101,7 +101,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     },
     async (args) => {
       try {
-        const result = await client.codes.search(args.query, {
+        const result = await client.icd10.search(args.query, {
           limit: args.limit,
           offset: args.offset,
         });
@@ -131,7 +131,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     },
     async (args) => {
       try {
-        const result = await client.codes.get(args.code);
+        const result = await client.icd10.get(args.code);
         return ok(formatCodeDetail(result));
       } catch (error) {
         return fail(error);

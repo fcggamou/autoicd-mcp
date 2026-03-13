@@ -117,7 +117,7 @@ function createMockClient() {
   return {
     code: vi.fn(),
     anonymize: vi.fn(),
-    codes: {
+    icd10: {
       search: vi.fn(),
       get: vi.fn(),
     },
@@ -193,15 +193,15 @@ describe("registerTools", () => {
   });
 
   describe("search_codes", () => {
-    it("calls client.codes.search and returns formatted result", async () => {
-      (client.codes.search as any).mockResolvedValue(mockSearchResponse);
+    it("calls client.icd10.search and returns formatted result", async () => {
+      (client.icd10.search as any).mockResolvedValue(mockSearchResponse);
       const result = await callTool(server, "search_codes", {
         query: "diabetes",
         limit: 20,
         offset: 0,
       });
 
-      expect(client.codes.search).toHaveBeenCalledWith("diabetes", {
+      expect(client.icd10.search).toHaveBeenCalledWith("diabetes", {
         limit: 20,
         offset: 0,
       });
@@ -210,17 +210,17 @@ describe("registerTools", () => {
   });
 
   describe("get_code", () => {
-    it("calls client.codes.get and returns formatted result", async () => {
-      (client.codes.get as any).mockResolvedValue(mockCodeDetail);
+    it("calls client.icd10.get and returns formatted result", async () => {
+      (client.icd10.get as any).mockResolvedValue(mockCodeDetail);
       const result = await callTool(server, "get_code", { code: "E11.9" });
 
-      expect(client.codes.get).toHaveBeenCalledWith("E11.9");
+      expect(client.icd10.get).toHaveBeenCalledWith("E11.9");
       expect(result.content[0].text).toContain("E11.9");
       expect(result.content[0].text).toContain("Billable");
     });
 
     it("returns error content on not found", async () => {
-      (client.codes.get as any).mockRejectedValue(new NotFoundError("Code not found"));
+      (client.icd10.get as any).mockRejectedValue(new NotFoundError("Code not found"));
       const result = await callTool(server, "get_code", { code: "XYZ" });
 
       expect(result.isError).toBe(true);
