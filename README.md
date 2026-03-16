@@ -2,7 +2,7 @@
 
 > Give AI assistants the power of medical coding — ICD-10-CM and ICD-11 diagnosis coding, code search, crosswalk, and PHI de-identification via the [AutoICD API](https://autoicdapi.com).
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for automated ICD-10 and ICD-11 medical coding.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for AI-powered ICD-10 and ICD-11 medical coding automation.
 
 ## Why AutoICD API?
 
