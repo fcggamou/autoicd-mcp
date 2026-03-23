@@ -1,16 +1,17 @@
 # AutoICD MCP Server
 
-> Give AI assistants the power of medical coding — ICD-10-CM and ICD-11 diagnosis coding, code search, crosswalk, and PHI de-identification via the [AutoICD API](https://autoicdapi.com).
+> Give AI assistants the power of medical coding — ICD-10-CM, ICD-11, and ICF diagnosis and functioning coding, code search, crosswalk, Core Sets, and PHI de-identification via the [AutoICD API](https://autoicdapi.com).
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for AI-powered ICD-10 and ICD-11 medical coding automation.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for AI-powered ICD-10, ICD-11, and ICF medical coding automation.
 
 ## Why AutoICD API?
 
 | Feature | Details |
 |---------|---------|
-| **AI-Powered Coding** | Clinical text → ICD-10-CM or ICD-11 codes with NLP entity extraction |
+| **AI-Powered Coding** | Clinical text → ICD-10-CM, ICD-11, or ICF codes with NLP entity extraction |
 | **74,000+ ICD-10 Codes** | Full ICD-10-CM 2025 code set with descriptions and hierarchy |
 | **ICD-11 Support** | Search and look up ICD-11 codes with full ICD-10 ↔ ICD-11 crosswalk |
+| **ICF Functioning Codes** | Code clinical text to WHO ICF categories, search 1,400+ codes, and access Core Sets for 12+ conditions |
 | **Negation Detection** | Identifies negated, historical, uncertain, and family history mentions |
 | **Confidence Scoring** | High/moderate confidence labels with cosine similarity scores |
 | **Spell Correction** | Handles misspelled medical terms automatically |
@@ -181,6 +182,59 @@ De-identify Protected Health Information (PHI) in clinical text.
 - _"De-identify this clinical text before I share it: Maria Garcia, MRN 789012, SSN 123-45-6789, diagnosed with pneumonia"_
 
 Detects and replaces names, dates, SSNs, phone numbers, emails, addresses, MRNs, and ages with type labels like `[NAME]`, `[DATE]`, `[SSN]`.
+
+### `icf_code`
+
+Code clinical text to WHO ICF functioning categories.
+
+**Parameters:**
+- `text` (required) — Clinical text describing functional status, disabilities, or impairments
+- `top_k` (optional, 1-25, default: 5) — Number of top ICF candidates per entity
+
+**Example prompts:**
+- _"Code this functional assessment to ICF: Patient has difficulty walking and limited grip strength after stroke"_
+- _"What ICF codes apply to: Patient with reduced mobility, cognitive impairment, and difficulty with self-care"_
+
+### `icf_lookup`
+
+Look up details for a specific ICF code.
+
+**Parameters:**
+- `code` (required) — ICF code (e.g., "b730", "d450", "s110")
+
+**Example prompts:**
+- _"Look up ICF code b730"_
+- _"What does ICF code d450 mean?"_
+- _"Show me the definition of ICF code s110"_
+
+Returns title, definition, component, chapter, parent/child hierarchy, inclusions, exclusions, and index terms.
+
+### `icf_search`
+
+Search ICF codes by keyword.
+
+**Parameters:**
+- `query` (required) — Search text to match against ICF code descriptions
+- `limit` (optional, 1-100, default: 20) — Maximum results
+
+**Example prompts:**
+- _"Search for ICF codes related to mobility"_
+- _"Find ICF codes for cognitive functions"_
+- _"What ICF codes are there for self-care activities?"_
+
+### `icf_core_set`
+
+Get the ICF Core Set for an ICD-10 diagnosis — a curated list of ICF categories relevant to a specific condition.
+
+**Parameters:**
+- `icd10_code` (required) — ICD-10-CM code (e.g., "E11.9", "I63.9", "G35")
+
+**Example prompts:**
+- _"What ICF Core Set applies to diabetes (E11.9)?"_
+- _"Show me the ICF Core Set for stroke (I63.9)"_
+- _"Get the brief and comprehensive ICF Core Sets for multiple sclerosis (G35)"_
+
+Returns condition name, brief Core Set (key categories), and comprehensive Core Set (full assessment categories).
 
 ## Common ICD-10 Codes
 
