@@ -7,6 +7,11 @@ import type {
   AnonymizeResponse,
   ICD11CodeSearchResponse,
   ICD11CodeDetailFull,
+  ICFCodingResponse,
+  ICFCodeDetail,
+  ICFSearchResponse,
+  ICFCoreSetResult,
+  ICFComponent,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -261,6 +266,149 @@ export function formatAnonymizeResponse(response: AnonymizeResponse): string {
     lines.push("|------|----------|-------------|");
     for (const entity of response.pii_entities) {
       lines.push(`| ${entity.label} | ${entity.text} | ${entity.replacement} |`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+// ─── ICF Formatters ───
+
+function componentLabel(component: ICFComponent): string {
+  switch (component) {
+    case "b":
+      return "Body Functions";
+    case "s":
+      return "Body Structures";
+    case "d":
+      return "Activities & Participation";
+    case "e":
+      return "Environmental Factors";
+    default:
+      return component;
+  }
+}
+
+export function formatICFCodingResponse(response: ICFCodingResponse): string {
+  const lines: string[] = [];
+  lines.push("## ICF Coding Results\n");
+  lines.push(`**Entities found:** ${response.entity_count}\n`);
+
+  if (response.results.length === 0) {
+    lines.push("No functional entities detected in the input text.");
+    return lines.join("\n");
+  }
+
+  for (let i = 0; i < response.results.length; i++) {
+    const entity = response.results[i];
+    lines.push(`### ${i + 1}. ${entity.entity_text}\n`);
+
+    if (entity.codes.length > 0) {
+      lines.push("| Rank | Code | Description | Component | Confidence | Score |");
+      lines.push("|------|------|-------------|-----------|------------|-------|");
+      for (let j = 0; j < entity.codes.length; j++) {
+        const match = entity.codes[j];
+        const score = (match.similarity * 100).toFixed(1);
+        lines.push(
+          `| ${j + 1} | \`${match.code}\` | ${match.description} | ${componentLabel(match.component)} | ${match.confidence} | ${score}% |`
+        );
+      }
+    }
+
+    lines.push("");
+  }
+
+  return lines.join("\n");
+}
+
+export function formatICFCodeDetail(detail: ICFCodeDetail): string {
+  const lines: string[] = [];
+  lines.push(`## \`${detail.code}\` — ${detail.title}\n`);
+  lines.push(`**Component:** ${componentLabel(detail.component)}`);
+  lines.push(`**Chapter:** ${detail.chapter}`);
+
+  if (detail.definition) {
+    lines.push(`\n**Definition:** ${detail.definition}`);
+  }
+
+  if (detail.inclusions.length > 0) {
+    lines.push("\n**Inclusions:**");
+    for (const inc of detail.inclusions) {
+      lines.push(`- ${inc}`);
+    }
+  }
+
+  if (detail.exclusions.length > 0) {
+    lines.push("\n**Exclusions:**");
+    for (const exc of detail.exclusions) {
+      lines.push(`- ${exc}`);
+    }
+  }
+
+  if (detail.parent) {
+    lines.push(
+      `\n**Parent:** \`${detail.parent.code}\` — ${detail.parent.title}`
+    );
+  }
+
+  if (detail.children.length > 0) {
+    lines.push(`\n**Child codes (${detail.children.length}):**`);
+    for (const child of detail.children) {
+      lines.push(`- \`${child.code}\` — ${child.title}`);
+    }
+  }
+
+  if (detail.index_terms.length > 0) {
+    lines.push(`\n**Index terms:** ${detail.index_terms.join(", ")}`);
+  }
+
+  return lines.join("\n");
+}
+
+export function formatICFSearchResponse(response: ICFSearchResponse): string {
+  const lines: string[] = [];
+  lines.push("## ICF Code Search Results\n");
+  lines.push(`**Query:** "${response.query}" — **${response.count}** result(s)\n`);
+
+  if (response.codes.length === 0) {
+    lines.push("No matching ICF codes found.");
+    return lines.join("\n");
+  }
+
+  lines.push("| Code | Title | Component | Children |");
+  lines.push("|------|-------|-----------|----------|");
+  for (const code of response.codes) {
+    lines.push(
+      `| \`${code.code}\` | ${code.title} | ${componentLabel(code.component)} | ${code.child_count} |`
+    );
+  }
+
+  return lines.join("\n");
+}
+
+export function formatICFCoreSetResponse(response: ICFCoreSetResult): string {
+  const lines: string[] = [];
+  lines.push(`## ICF Core Set for \`${response.icd10_code}\` — ${response.condition_name}\n`);
+
+  lines.push(`### Brief Core Set (${response.brief.length} codes)\n`);
+  if (response.brief.length === 0) {
+    lines.push("No brief core set codes available.");
+  } else {
+    lines.push("| Code | Title | Component |");
+    lines.push("|------|-------|-----------|");
+    for (const code of response.brief) {
+      lines.push(`| \`${code.code}\` | ${code.title} | ${componentLabel(code.component)} |`);
+    }
+  }
+
+  lines.push(`\n### Comprehensive Core Set (${response.comprehensive.length} codes)\n`);
+  if (response.comprehensive.length === 0) {
+    lines.push("No comprehensive core set codes available.");
+  } else {
+    lines.push("| Code | Title | Component |");
+    lines.push("|------|-------|-----------|");
+    for (const code of response.comprehensive) {
+      lines.push(`| \`${code.code}\` | ${code.title} | ${componentLabel(code.component)} |`);
     }
   }
 

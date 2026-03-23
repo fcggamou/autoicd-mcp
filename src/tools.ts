@@ -8,6 +8,10 @@ import {
   formatAnonymizeResponse,
   formatICD11SearchResponse,
   formatICD11CodeDetail,
+  formatICFCodingResponse,
+  formatICFCodeDetail,
+  formatICFSearchResponse,
+  formatICFCoreSetResponse,
   formatError,
 } from "./format.js";
 
@@ -225,6 +229,143 @@ export function registerTools(server: McpServer, client: AutoICD): void {
       try {
         const result = await client.anonymize(args.text);
         return ok(formatAnonymizeResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  // ─── ICF Tools ───
+
+  server.registerTool(
+    "icf_code",
+    {
+      title: "Code Clinical Text to ICF Categories",
+      description:
+        "Extract functional concepts from clinical text and map them to ICF " +
+        "(International Classification of Functioning, Disability and Health) codes. " +
+        "Identifies body functions, structures, activities, participation, and environmental factors. " +
+        "Returns ranked ICF code candidates with confidence scores.",
+      inputSchema: {
+        text: z
+          .string()
+          .min(1)
+          .describe("Clinical text to code to ICF categories"),
+        top_k: z
+          .number()
+          .int()
+          .min(1)
+          .max(25)
+          .default(5)
+          .describe("Max ICF codes per entity (default: 5)"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.icf.code(args.text, { topK: args.top_k });
+        return ok(formatICFCodingResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "icf_lookup",
+    {
+      title: "Get ICF Code Details",
+      description:
+        "Get comprehensive details for a specific ICF code including " +
+        "definition, component, chapter, parent/child hierarchy, " +
+        "inclusions, exclusions, and index terms.",
+      inputSchema: {
+        code: z
+          .string()
+          .min(1)
+          .describe("ICF code (e.g., 'b110', 'd450', 's730', 'e120')"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.icf.lookup(args.code);
+        return ok(formatICFCodeDetail(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "icf_search",
+    {
+      title: "Search ICF Codes",
+      description:
+        "Search the ICF code directory by description text. " +
+        "Returns matching codes with titles, components, and child counts. " +
+        "Useful for finding specific ICF codes by keyword.",
+      inputSchema: {
+        query: z
+          .string()
+          .min(1)
+          .describe("Search query to match against ICF code descriptions"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Maximum results (default: 20)"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.icf.search(args.query, { limit: args.limit });
+        return ok(formatICFSearchResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "icf_core_set",
+    {
+      title: "Get ICF Core Set for ICD-10 Diagnosis",
+      description:
+        "Get the ICF Core Set (brief and comprehensive) for a given ICD-10 diagnosis code. " +
+        "Core Sets are pre-selected lists of ICF categories most relevant to a specific condition, " +
+        "useful for standardized functional assessment.",
+      inputSchema: {
+        icd10_code: z
+          .string()
+          .min(1)
+          .describe("ICD-10 code (e.g., 'E11', 'I63', 'F32')"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.icf.coreSet(args.icd10_code);
+        return ok(formatICFCoreSetResponse(result));
       } catch (error) {
         return fail(error);
       }
