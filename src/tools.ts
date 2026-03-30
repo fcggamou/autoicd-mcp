@@ -29,9 +29,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     {
       title: "Code Clinical Text to ICD-10/ICD-11",
       description:
-        "Extract medical diagnoses from clinical text and map them to ICD-10-CM or ICD-11 codes. " +
-        "Identifies conditions, negations, historical mentions, family history, and severity. " +
-        "Returns ranked code candidates with confidence scores.",
+        "Code clinical text to ICD-10-CM codes with cross-references to ICD-11, SNOMED CT, UMLS, and ICF",
       inputSchema: {
         text: z
           .string()
@@ -121,9 +119,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     {
       title: "Get ICD-10 Code Details",
       description:
-        "Get comprehensive details for a specific ICD-10-CM code including " +
-        "descriptions, billable status, SNOMED CT and UMLS synonyms, parent/child " +
-        "hierarchy, and chapter classification.",
+        "Get full ICD-10 code details including descriptions, synonyms, SNOMED CT & UMLS cross-references, ICD-11 crosswalk mappings, ICF categories, and hierarchy",
       inputSchema: {
         code: z.string().min(1).describe("ICD-10-CM code (e.g., 'E11.9', 'I10', 'J44.1')"),
       },
@@ -184,9 +180,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     {
       title: "Get ICD-11 Code Details",
       description:
-        "Get comprehensive details for a specific ICD-11 code including " +
-        "descriptions, Foundation URI, synonyms, parent/child hierarchy, " +
-        "chapter classification, and ICD-10 crosswalk mappings.",
+        "Get full ICD-11 code details including descriptions, synonyms, SNOMED CT & UMLS cross-references, ICD-10 crosswalk mappings, ICF categories, and hierarchy",
       inputSchema: {
         code: z.string().min(1).describe("ICD-11 code (e.g., '5A11', 'BA00', 'CA40.0')"),
       },
@@ -242,10 +236,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     {
       title: "Code Clinical Text to ICF Categories",
       description:
-        "Extract functional concepts from clinical text and map them to ICF " +
-        "(International Classification of Functioning, Disability and Health) codes. " +
-        "Identifies body functions, structures, activities, participation, and environmental factors. " +
-        "Returns ranked ICF code candidates with confidence scores.",
+        "Code clinical text to ICF categories with cross-references to ICD-10, ICD-11, SNOMED CT, and UMLS",
       inputSchema: {
         text: z
           .string()
@@ -280,9 +271,7 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     {
       title: "Get ICF Code Details",
       description:
-        "Get comprehensive details for a specific ICF code including " +
-        "definition, component, chapter, parent/child hierarchy, " +
-        "inclusions, exclusions, and index terms.",
+        "Get full ICF code details including definition, hierarchy, related ICD-10/ICD-11 codes, and SNOMED CT/UMLS cross-references",
       inputSchema: {
         code: z
           .string()

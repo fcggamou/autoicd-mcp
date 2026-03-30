@@ -63,6 +63,14 @@ function formatEntity(entity: CodingEntity, index: number): string {
     for (let i = 0; i < entity.codes.length; i++) {
       lines.push(formatCodeMatch(entity.codes[i], i + 1));
     }
+
+    const top = entity.codes[0];
+    const refs: string[] = [];
+    if (top.icd11_codes?.length) refs.push(`ICD-11: ${top.icd11_codes.join(", ")}`);
+    if (top.snomed_ids?.length) refs.push(`SNOMED: ${top.snomed_ids.join(", ")}`);
+    if (top.umls_cuis?.length) refs.push(`UMLS: ${top.umls_cuis.join(", ")}`);
+    if (top.icf_categories?.length) refs.push(`ICF: ${top.icf_categories.join(", ")}`);
+    if (refs.length) lines.push("", "**Cross-references (top match):** " + refs.join(" | "));
   }
 
   lines.push("");
@@ -151,6 +159,15 @@ export function formatCodeDetail(detail: CodeDetailFull): string {
     lines.push("|-------------|-------------|--------------|");
     for (const mapping of detail.icd11_mappings) {
       lines.push(`| \`${mapping.code}\` | ${mapping.description} | ${mapping.mapping_type} |`);
+    }
+  }
+
+  if (detail.icf_categories?.length) {
+    lines.push("", "### Related ICF Categories", "");
+    lines.push("| Code | Title | Component |");
+    lines.push("|------|-------|-----------|");
+    for (const cat of detail.icf_categories) {
+      lines.push(`| ${cat.code} | ${cat.title} | ${componentLabel(cat.component)} |`);
     }
   }
 
@@ -248,6 +265,15 @@ export function formatICD11CodeDetail(detail: ICD11CodeDetailFull): string {
     lines.push("|-------------|-------------|--------------|");
     for (const mapping of detail.icd10_mappings) {
       lines.push(`| \`${mapping.code}\` | ${mapping.description} | ${mapping.mapping_type} |`);
+    }
+  }
+
+  if (detail.icf_categories?.length) {
+    lines.push("", "### Related ICF Categories", "");
+    lines.push("| Code | Title | Component |");
+    lines.push("|------|-------|-----------|");
+    for (const cat of detail.icf_categories) {
+      lines.push(`| ${cat.code} | ${cat.title} | ${componentLabel(cat.component)} |`);
     }
   }
 
@@ -360,6 +386,30 @@ export function formatICFCodeDetail(detail: ICFCodeDetail): string {
 
   if (detail.index_terms.length > 0) {
     lines.push(`\n**Index terms:** ${detail.index_terms.join(", ")}`);
+  }
+
+  if (detail.icd10_mappings?.length) {
+    lines.push("", "### Related ICD-10 Codes", "");
+    lines.push("| Code | Description |");
+    lines.push("|------|-------------|");
+    for (const m of detail.icd10_mappings) {
+      lines.push(`| ${m.code} | ${m.description} |`);
+    }
+  }
+  if (detail.icd11_mappings?.length) {
+    lines.push("", "### Related ICD-11 Codes", "");
+    lines.push("| Code | Description |");
+    lines.push("|------|-------------|");
+    for (const m of detail.icd11_mappings) {
+      lines.push(`| ${m.code} | ${m.description} |`);
+    }
+  }
+  const xrefs = detail.cross_references;
+  if (xrefs && Object.keys(xrefs).length) {
+    lines.push("", "### Cross-References", "");
+    for (const [source, ids] of Object.entries(xrefs)) {
+      lines.push(`**${sourceLabel(source)}:** ${(ids as string[]).join(", ")}`);
+    }
   }
 
   return lines.join("\n");
