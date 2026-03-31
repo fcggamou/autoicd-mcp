@@ -12,6 +12,8 @@ import {
   formatICFCodeDetail,
   formatICFSearchResponse,
   formatICFCoreSetResponse,
+  formatLOINCCodeDetail,
+  formatLOINCSearchResponse,
   formatError,
 } from "./format.js";
 
@@ -355,6 +357,73 @@ export function registerTools(server: McpServer, client: AutoICD): void {
       try {
         const result = await client.icf.coreSet(args.icd10_code);
         return ok(formatICFCoreSetResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  // ─── LOINC Tools ───
+
+  server.registerTool(
+    "loinc_lookup",
+    {
+      title: "Get LOINC Code Details",
+      description:
+        "Get full LOINC code details including 6-axis classification (component, property, time, system, scale, method), definition, and cross-references",
+      inputSchema: {
+        code: z
+          .string()
+          .min(1)
+          .describe("LOINC code (e.g., '2345-7', '718-7', '4548-4')"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.loinc.lookup(args.code);
+        return ok(formatLOINCCodeDetail(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "loinc_search",
+    {
+      title: "Search LOINC Codes",
+      description:
+        "Search the LOINC code directory by description text. " +
+        "Returns matching codes with names, classes, and types. " +
+        "Useful for finding specific lab tests or clinical observations by keyword.",
+      inputSchema: {
+        query: z
+          .string()
+          .min(1)
+          .describe("Search query to match against LOINC code descriptions"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Maximum results (default: 20)"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.loinc.search(args.query, { limit: args.limit });
+        return ok(formatLOINCSearchResponse(result));
       } catch (error) {
         return fail(error);
       }

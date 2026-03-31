@@ -12,6 +12,8 @@ import type {
   ICFSearchResponse,
   ICFCoreSetResult,
   ICFComponent,
+  LOINCCodeDetail,
+  LOINCSearchResponse,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -460,6 +462,79 @@ export function formatICFCoreSetResponse(response: ICFCoreSetResult): string {
     for (const code of response.comprehensive) {
       lines.push(`| \`${code.code}\` | ${code.title} | ${componentLabel(code.component)} |`);
     }
+  }
+
+  return lines.join("\n");
+}
+
+// ─── LOINC Formatters ───
+
+const CLASSTYPE_LABELS: Record<number, string> = {
+  1: "Laboratory",
+  2: "Clinical",
+  3: "Claims",
+  4: "Surveys",
+};
+
+export function formatLOINCCodeDetail(detail: LOINCCodeDetail): string {
+  const lines: string[] = [];
+  lines.push(`## \`${detail.code}\` — ${detail.long_common_name}\n`);
+  lines.push(`**Class:** ${detail.class_name} (${CLASSTYPE_LABELS[detail.class_type] ?? "Unknown"})`);
+
+  if (detail.definition) {
+    lines.push(`\n**Definition:** ${detail.definition}`);
+  }
+
+  // 6-axis classification
+  lines.push("\n### LOINC 6-Axis Classification\n");
+  lines.push("| Axis | Value |");
+  lines.push("|------|-------|");
+  lines.push(`| Component | ${detail.component || "N/A"} |`);
+  lines.push(`| Property | ${detail.property || "N/A"} |`);
+  lines.push(`| Time Aspect | ${detail.time_aspect || "N/A"} |`);
+  lines.push(`| System | ${detail.system || "N/A"} |`);
+  lines.push(`| Scale Type | ${detail.scale_type || "N/A"} |`);
+  lines.push(`| Method Type | ${detail.method_type || "N/A"} |`);
+
+  if (detail.order_obs) {
+    lines.push(`\n**Order/Observation:** ${detail.order_obs}`);
+  }
+
+  if (detail.consumer_name) {
+    lines.push(`**Consumer Name:** ${detail.consumer_name}`);
+  }
+
+  if (detail.related_names.length > 0) {
+    lines.push(`\n**Related Names:** ${detail.related_names.join("; ")}`);
+  }
+
+  const xrefs = detail.cross_references;
+  if (xrefs && Object.keys(xrefs).length) {
+    lines.push("", "### Cross-References", "");
+    for (const [source, ids] of Object.entries(xrefs)) {
+      lines.push(`**${sourceLabel(source)}:** ${(ids as string[]).join(", ")}`);
+    }
+  }
+
+  return lines.join("\n");
+}
+
+export function formatLOINCSearchResponse(response: LOINCSearchResponse): string {
+  const lines: string[] = [];
+  lines.push("## LOINC Code Search Results\n");
+  lines.push(`**Query:** "${response.query}" — **${response.count}** result(s)\n`);
+
+  if (response.codes.length === 0) {
+    lines.push("No matching LOINC codes found.");
+    return lines.join("\n");
+  }
+
+  lines.push("| Code | Name | Class | Type |");
+  lines.push("|------|------|-------|------|");
+  for (const code of response.codes) {
+    lines.push(
+      `| \`${code.code}\` | ${code.long_common_name} | ${code.class_name} | ${CLASSTYPE_LABELS[code.class_type] ?? "Unknown"} |`
+    );
   }
 
   return lines.join("\n");
