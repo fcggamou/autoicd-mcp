@@ -14,6 +14,7 @@ import {
   formatICFCoreSetResponse,
   formatLOINCCodeDetail,
   formatLOINCSearchResponse,
+  formatLOINCCodingResponse,
   formatError,
 } from "./format.js";
 
@@ -364,6 +365,41 @@ export function registerTools(server: McpServer, client: AutoICD): void {
   );
 
   // ─── LOINC Tools ───
+
+  server.registerTool(
+    "loinc_code",
+    {
+      title: "Code Clinical Text to LOINC Codes",
+      description:
+        "Code clinical text to LOINC codes. Extracts lab tests, imaging orders, and clinical observations from free text and matches to LOINC codes.",
+      inputSchema: {
+        text: z
+          .string()
+          .min(1)
+          .describe("Clinical text to code to LOINC codes"),
+        top_k: z
+          .number()
+          .int()
+          .min(1)
+          .max(25)
+          .default(5)
+          .describe("Max LOINC codes per entity (default: 5)"),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.loinc.code(args.text, { topK: args.top_k });
+        return ok(formatLOINCCodingResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
 
   server.registerTool(
     "loinc_lookup",

@@ -14,6 +14,7 @@ import type {
   ICFComponent,
   LOINCCodeDetail,
   LOINCSearchResponse,
+  LOINCCodingResponse,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -514,6 +515,38 @@ export function formatLOINCCodeDetail(detail: LOINCCodeDetail): string {
     for (const [source, ids] of Object.entries(xrefs)) {
       lines.push(`**${sourceLabel(source)}:** ${(ids as string[]).join(", ")}`);
     }
+  }
+
+  return lines.join("\n");
+}
+
+export function formatLOINCCodingResponse(response: LOINCCodingResponse): string {
+  const lines: string[] = [];
+  lines.push("## LOINC Coding Results\n");
+  lines.push(`**Entities found:** ${response.entity_count}\n`);
+
+  if (response.results.length === 0) {
+    lines.push("No lab or observation entities detected in the input text.");
+    return lines.join("\n");
+  }
+
+  for (let i = 0; i < response.results.length; i++) {
+    const entity = response.results[i];
+    lines.push(`### ${i + 1}. ${entity.entity_text}\n`);
+
+    if (entity.codes.length > 0) {
+      lines.push("| Rank | Code | Name | Component | System | Confidence | Score |");
+      lines.push("|------|------|------|-----------|--------|------------|-------|");
+      for (let j = 0; j < entity.codes.length; j++) {
+        const match = entity.codes[j];
+        const score = (match.similarity * 100).toFixed(1);
+        lines.push(
+          `| ${j + 1} | \`${match.code}\` | ${match.long_common_name} | ${match.component} | ${match.system} | ${match.confidence} | ${score}% |`
+        );
+      }
+    }
+
+    lines.push("");
   }
 
   return lines.join("\n");
