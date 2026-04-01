@@ -53,10 +53,6 @@ export function registerTools(server: McpServer, client: AutoICD): void {
           .enum(["icd10", "icd11"])
           .default("icd10")
           .describe("Output coding system: 'icd10' (default) or 'icd11'"),
-        include_loinc: z
-          .boolean()
-          .default(false)
-          .describe("Include LOINC lab code results in the response"),
         include_icf: z
           .boolean()
           .default(false)
@@ -86,7 +82,6 @@ export function registerTools(server: McpServer, client: AutoICD): void {
           topK: args.top_k,
           includeNegated: args.include_negated,
           outputSystem: args.output_system,
-          includeLoinc: args.include_loinc,
           includeIcf: args.include_icf,
           includeIcd11: args.include_icd11,
           includeSnomed: args.include_snomed,

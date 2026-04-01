@@ -38,27 +38,6 @@ export function formatCodingResponse(response: CodingResponse): string {
     lines.push(formatEntity(entity, i + 1));
   }
 
-  // LOINC section
-  const loincEntities = (response as unknown as Record<string, unknown>).loinc_entities as Array<{entity_text: string; codes: Array<{code: string; long_common_name: string; component: string; system: string; similarity: number}>}> | undefined;
-  if (loincEntities && loincEntities.length > 0) {
-    lines.push("\n## LOINC Lab Code Results\n");
-    lines.push(`**Lab entities found:** ${loincEntities.length}\n`);
-    for (let i = 0; i < loincEntities.length; i++) {
-      const entity = loincEntities[i];
-      lines.push(`### ${i + 1}. ${entity.entity_text}\n`);
-      if (entity.codes.length > 0) {
-        lines.push("| Rank | Code | Name | Component | System | Score |");
-        lines.push("|------|------|------|-----------|--------|-------|");
-        for (let j = 0; j < entity.codes.length; j++) {
-          const c = entity.codes[j];
-          const score = (c.similarity * 100).toFixed(1);
-          lines.push(`| ${j + 1} | \`${c.code}\` | ${c.long_common_name} | ${c.component} | ${c.system} | ${score}% |`);
-        }
-      }
-      lines.push("");
-    }
-  }
-
   // ICF section
   const icfEntities = (response as unknown as Record<string, unknown>).icf_entities as Array<{entity_text: string; codes: Array<{code: string; description: string; component: string; similarity: number}>}> | undefined;
   if (icfEntities && icfEntities.length > 0) {
