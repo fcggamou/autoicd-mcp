@@ -236,6 +236,23 @@ Get the ICF Core Set for an ICD-10 diagnosis — a curated list of ICF categorie
 
 Returns condition name, brief Core Set (key categories), and comprehensive Core Set (full assessment categories).
 
+### `translate_code`
+
+Translate a code between healthcare coding systems. Forward from ICD-10 to ICD-11, SNOMED CT, UMLS, and ICF, plus reverse ICD-11 → ICD-10 and ICF → ICD-10. Built on CMS-published crosswalks, code-level SNOMED / UMLS concept IDs, and WHO ICF Core Sets.
+
+**Parameters:**
+- `code` (required) — The source code (e.g., "E11.9" for ICD-10, "5A11" for ICD-11).
+- `system` (required) — `"icd10"`, `"icd11"`, `"snomed"`, `"umls"`, or `"icf"`.
+- `to` (optional) — Array of target systems. Omit for every system reachable from the source.
+
+**Example prompts:**
+- _"Translate ICD-10 E11.9 to ICD-11 and SNOMED."_
+- _"What's the SNOMED CT and ICD-11 equivalent of diabetes code E11.9?"_
+- _"Reverse-translate ICD-11 5A11 back to ICD-10."_
+- _"Show me the ICF categories that map to ICD-10 I63.9."_
+
+Targets not reachable from the source are returned in `unsupported_targets` rather than as errors, so a broad target list is safe.
+
 ### `audit_clinical_text`
 
 Audit a chart against submitted codes. Surfaces missed HCCs with RAF-weighted revenue estimates, unsupported codes (RADV exposure), specificity upgrades, denial risk flags, and a reconciled problem list. Every finding carries extractive evidence spans.

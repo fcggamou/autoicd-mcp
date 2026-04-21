@@ -16,6 +16,7 @@ import type {
   LOINCSearchResponse,
   LOINCCodingResponse,
   AuditResponse,
+  TranslateResponse,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -686,6 +687,51 @@ export function formatAuditResponse(response: AuditResponse): string {
   }
 
   return lines.join("\n");
+}
+
+const SYSTEM_LABELS: Record<string, string> = {
+  icd10: "ICD-10-CM",
+  icd11: "ICD-11 MMS",
+  snomed: "SNOMED CT",
+  umls: "UMLS",
+  icf: "ICF",
+};
+
+export function formatTranslateResponse(response: TranslateResponse): string {
+  const lines: string[] = [];
+  const sourceLabel = SYSTEM_LABELS[response.from.system] ?? response.from.system;
+  const desc = response.from.description ? ` — ${response.from.description}` : "";
+  lines.push(`## Cross-standard translation\n`);
+  lines.push(`**From:** \`${response.from.code}\` (${sourceLabel})${desc}\n`);
+
+  const systemsWithRows = Object.entries(response.mappings).filter(
+    ([, rows]) => Array.isArray(rows) && rows.length > 0,
+  );
+
+  if (systemsWithRows.length === 0) {
+    lines.push("No mappings returned.");
+  } else {
+    for (const [system, rows] of systemsWithRows) {
+      const label = SYSTEM_LABELS[system] ?? system;
+      lines.push(`### ${label}`);
+      for (const row of rows ?? []) {
+        const bits: string[] = [`\`${row.code}\``];
+        if (row.description) bits.push(row.description);
+        if (row.mapping_type) bits.push(`_(${row.mapping_type})_`);
+        if (row.component) bits.push(`[component ${row.component}]`);
+        lines.push(`- ${bits.join(" — ")}`);
+      }
+      lines.push("");
+    }
+  }
+
+  if (response.unsupported_targets && response.unsupported_targets.length > 0) {
+    lines.push(
+      `> **Unsupported targets:** ${response.unsupported_targets.join(", ")} (not reachable from ${sourceLabel} in this release).`,
+    );
+  }
+
+  return lines.join("\n").trim();
 }
 
 export function formatError(error: unknown): string {

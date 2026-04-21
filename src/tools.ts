@@ -16,6 +16,7 @@ import {
   formatLOINCSearchResponse,
   formatLOINCCodingResponse,
   formatAuditResponse,
+  formatTranslateResponse,
   formatError,
 } from "./format.js";
 
@@ -579,6 +580,46 @@ export function registerTools(server: McpServer, client: AutoICD): void {
           },
         });
         return ok(formatAuditResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "translate_code",
+    {
+      title: "Translate a Code Between Coding Systems",
+      description:
+        "Map a code in one healthcare coding system (ICD-10, ICD-11, SNOMED CT, UMLS, ICF) to equivalents in requested target systems. Supports ICD-10 -> ICD-11 / SNOMED / UMLS / ICF, ICD-11 -> ICD-10, and ICF -> ICD-10. Targets that are not reachable from the source are returned in 'unsupported_targets' rather than as errors.",
+      inputSchema: {
+        code: z
+          .string()
+          .min(1)
+          .describe("The code to translate (e.g., 'E11.9' for ICD-10, '5A11' for ICD-11)."),
+        system: z
+          .enum(["icd10", "icd11", "snomed", "umls", "icf"])
+          .describe("The source coding system for the code."),
+        to: z
+          .array(z.enum(["icd10", "icd11", "snomed", "umls", "icf"]))
+          .optional()
+          .describe(
+            "Target coding systems to map to. Omit to get every system reachable from the source.",
+          ),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.translate({
+          from: { code: args.code, system: args.system },
+          ...(args.to !== undefined ? { to: args.to } : {}),
+        });
+        return ok(formatTranslateResponse(result));
       } catch (error) {
         return fail(error);
       }
