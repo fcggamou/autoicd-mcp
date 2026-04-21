@@ -678,6 +678,13 @@ export function formatAuditResponse(response: AuditResponse): string {
     lines.push("No audit findings.");
   }
 
+  if (response.upgrade_hint) {
+    lines.push("");
+    lines.push(
+      `> **Upgrade:** ${response.upgrade_hint.message} Missing capabilities: ${response.upgrade_hint.denied_capabilities.join(", ")}.`,
+    );
+  }
+
   return lines.join("\n");
 }
 
