@@ -236,6 +236,24 @@ Get the ICF Core Set for an ICD-10 diagnosis — a curated list of ICF categorie
 
 Returns condition name, brief Core Set (key categories), and comprehensive Core Set (full assessment categories).
 
+### `audit_clinical_text`
+
+Audit a chart against submitted codes. Surfaces missed HCCs with RAF-weighted revenue estimates, unsupported codes (RADV exposure), specificity upgrades, denial risk flags, and a reconciled problem list. Every finding carries extractive evidence spans.
+
+**Parameters:**
+- `text` (required) — Clinical text (progress note, discharge summary, H&P).
+- `codes` (required) — Array of `{ code, kind }` the clinician submitted (e.g., `[{ "code": "E11.9", "kind": "icd10" }]`).
+- `capabilities` (optional) — Subset of `["hcc", "radv", "specificity", "denial", "problem_list"]`. Defaults to all five.
+- `patient_age`, `patient_sex`, `coverage` (optional) — Enrich denial and HCC reasoning.
+- `hcc_model` (optional) — `"v22"`, `"v28"`, or `"both"` (default). Note: V24 is the ESRD-specific model and is not accepted here.
+
+**Example prompts:**
+- _"Audit this progress note. Codes submitted: E11.9, I50.9. Text: 68yo M, type 2 diabetes, chronic systolic CHF on furosemide, stage 3 CKD, proliferative diabetic retinopathy."_
+- _"Run an HCC-only gap analysis on this discharge summary. Submitted codes: [...]."_
+- _"Check this encounter for unsupported codes and denial risk. Patient is male, age 45."_
+
+Uses the CMS PY2026 V22 and V28 community models for HCC gap capture.
+
 ## Common ICD-10 Codes
 
 Here are some of the most commonly coded conditions you can look up with this MCP server:
