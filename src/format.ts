@@ -325,7 +325,7 @@ export function formatAnonymizeResponse(response: AnonymizeResponse): string {
 
 // ─── ICF Formatters ───
 
-function componentLabel(component: ICFComponent): string {
+function componentLabel(component: ICFComponent | string): string {
   switch (component) {
     case "b":
       return "Body Functions";
