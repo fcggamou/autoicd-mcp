@@ -15,6 +15,7 @@ import type {
   LOINCCodeDetail,
   LOINCSearchResponse,
   LOINCCodingResponse,
+  AuditResponse,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -589,6 +590,92 @@ export function formatLOINCSearchResponse(response: LOINCSearchResponse): string
     lines.push(
       `| \`${code.code}\` | ${code.long_common_name} | ${code.class_name} | ${CLASSTYPE_LABELS[code.class_type] ?? "Unknown"} |`
     );
+  }
+
+  return lines.join("\n");
+}
+
+const MONEY = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
+
+export function formatAuditResponse(response: AuditResponse): string {
+  const lines: string[] = [];
+  lines.push("## Chart Audit\n");
+
+  const totals = response.totals;
+  const capabilitiesRun = response.capabilities_run.join(", ") || "(none)";
+  lines.push(`**Capabilities run:** ${capabilitiesRun}`);
+  lines.push(`**Missed revenue:** ${MONEY(totals.estimated_revenue_recovery)} across ${totals.codes_missed} missed code(s)`);
+  lines.push(`**RADV exposure:** ${MONEY(totals.radv_exposure)} across ${totals.codes_unsupported} unsupported code(s)`);
+  if (totals.drg_upside > 0) {
+    lines.push(`**DRG upside:** ${MONEY(totals.drg_upside)} from ${totals.upgrades_available} upgrade(s)`);
+  }
+  lines.push(
+    `**HCC model:** ${response.rates_used.hcc_model} (rates source: ${response.rates_used.source})\n`,
+  );
+
+  if (response.missed.length > 0) {
+    lines.push("### Missed codes");
+    lines.push("| Code | HCC | Model | RAF | Revenue | Description |");
+    lines.push("|------|------|-------|-----|---------|-------------|");
+    for (const m of response.missed) {
+      const cat = m.hcc_category ?? "non-HCC";
+      const model = m.hcc_model ?? "-";
+      const raf = m.raf_weight !== undefined ? m.raf_weight.toFixed(3) : "-";
+      const rev = m.estimated_revenue !== undefined ? MONEY(m.estimated_revenue) : "-";
+      lines.push(`| \`${m.code}\` | ${cat} | ${model} | ${raf} | ${rev} | ${m.description} |`);
+    }
+    lines.push("");
+  }
+
+  if (response.unsupported.length > 0) {
+    lines.push("### Unsupported codes (RADV)");
+    for (const u of response.unsupported) {
+      const risk = u.radv_risk.toUpperCase();
+      const exposure = u.estimated_exposure !== undefined ? ` (exposure ${MONEY(u.estimated_exposure)})` : "";
+      lines.push(`- **\`${u.code}\`** [${risk}${exposure}]: ${u.description}`);
+      lines.push(`  - reason: ${u.reason}`);
+      if (u.what_would_support_it) {
+        lines.push(`  - would support: ${u.what_would_support_it}`);
+      }
+    }
+    lines.push("");
+  }
+
+  if (response.specificity_upgrades.length > 0) {
+    lines.push("### Specificity upgrades");
+    for (const s of response.specificity_upgrades) {
+      const drg = s.drg_impact !== undefined ? ` (DRG impact ${MONEY(s.drg_impact)})` : "";
+      lines.push(`- \`${s.from_code}\` -> \`${s.to_code}\`${drg}: ${s.to_description}`);
+    }
+    lines.push("");
+  }
+
+  if (response.denial_risk.length > 0) {
+    lines.push("### Denial risk");
+    for (const d of response.denial_risk) {
+      if (d.risk === "low" && d.reasons.length === 0) continue;
+      const reasons = d.reasons.length > 0 ? `: ${d.reasons.join("; ")}` : "";
+      lines.push(`- **\`${d.code}\`** [${d.risk.toUpperCase()} p=${d.probability.toFixed(2)}]${reasons}`);
+    }
+    lines.push("");
+  }
+
+  if (response.problem_list && response.problem_list.length > 0) {
+    lines.push("### Problem list");
+    for (const p of response.problem_list) {
+      lines.push(`- \`${p.icd10_code}\` ${p.condition} (${p.status})`);
+    }
+    lines.push("");
+  }
+
+  if (
+    response.missed.length === 0 &&
+    response.unsupported.length === 0 &&
+    response.specificity_upgrades.length === 0 &&
+    response.denial_risk.length === 0 &&
+    (!response.problem_list || response.problem_list.length === 0)
+  ) {
+    lines.push("No audit findings.");
   }
 
   return lines.join("\n");

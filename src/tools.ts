@@ -15,6 +15,7 @@ import {
   formatLOINCCodeDetail,
   formatLOINCSearchResponse,
   formatLOINCCodingResponse,
+  formatAuditResponse,
   formatError,
 } from "./format.js";
 
@@ -480,6 +481,104 @@ export function registerTools(server: McpServer, client: AutoICD): void {
       try {
         const result = await client.loinc.search(args.query, { limit: args.limit });
         return ok(formatLOINCSearchResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "audit_clinical_text",
+    {
+      title: "Audit Chart for HCC Gaps and Coding Risk",
+      description:
+        "Audit clinical text against submitted ICD-10 codes. Surfaces missed HCCs with dollar impact, " +
+        "unsupported codes (RADV exposure), specificity upgrades, denial risk flags, and a reconciled " +
+        "problem list. Every finding carries extractive evidence spans pointing back to the source text. " +
+        "Uses the CMS PY2026 v22 and v28 community models for HCC gap capture.",
+      inputSchema: {
+        text: z
+          .string()
+          .min(1)
+          .describe(
+            "Clinical text to audit (progress note, discharge summary, H&P). Evidence spans reference character offsets in this text."
+          ),
+        codes: z
+          .array(
+            z.object({
+              code: z.string().describe("ICD-10 code (e.g., 'E11.9')"),
+              kind: z
+                .enum(["icd10", "icd11", "cpt", "hcpcs"])
+                .default("icd10")
+                .describe("Coding system for this code."),
+            })
+          )
+          .describe("Codes the clinician submitted on the claim."),
+        capabilities: z
+          .array(z.enum(["hcc", "radv", "specificity", "denial", "problem_list"]))
+          .optional()
+          .describe(
+            "Which audit capabilities to run. Defaults to all five when omitted. Pass ['hcc'] for a targeted HCC gap scan."
+          ),
+        patient_age: z
+          .number()
+          .int()
+          .min(0)
+          .max(130)
+          .optional()
+          .describe("Patient age. Enables age-specific denial checks when provided."),
+        patient_sex: z
+          .enum(["male", "female"])
+          .optional()
+          .describe("Patient sex. Enables sex-specific denial checks when provided."),
+        coverage: z
+          .enum([
+            "medicare_advantage",
+            "fee_for_service",
+            "medicaid",
+            "commercial",
+            "aco",
+          ])
+          .optional()
+          .describe(
+            "Patient coverage type. Influences HCC revenue estimates when provided."
+          ),
+        hcc_model: z
+          .enum(["v22", "v28", "both"])
+          .default("both")
+          .describe(
+            "CMS-HCC model for gap capture. PY2026 MA payment uses v22 + v28. Defaults to both."
+          ),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const patient =
+          args.patient_age !== undefined ||
+          args.patient_sex !== undefined ||
+          args.coverage !== undefined
+            ? {
+                ...(args.patient_age !== undefined ? { age: args.patient_age } : {}),
+                ...(args.patient_sex !== undefined ? { sex: args.patient_sex } : {}),
+                ...(args.coverage !== undefined ? { coverage: args.coverage } : {}),
+              }
+            : undefined;
+
+        const result = await client.audit({
+          text: args.text,
+          codes: args.codes,
+          ...(args.capabilities !== undefined ? { capabilities: args.capabilities } : {}),
+          context: {
+            hcc_model: args.hcc_model,
+            ...(patient ? { patient } : {}),
+          },
+        });
+        return ok(formatAuditResponse(result));
       } catch (error) {
         return fail(error);
       }
