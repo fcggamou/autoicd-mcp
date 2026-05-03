@@ -265,18 +265,18 @@ Here are some of the most commonly coded conditions you can look up with this MC
 
 | Condition | Code | Description |
 |-----------|------|-------------|
-| [Hypertension](https://autoicdapi.com/icd10/condition/hypertension) | I10 | Essential (primary) hypertension |
-| [Type 2 Diabetes](https://autoicdapi.com/icd10/condition/diabetes) | E11.9 | Type 2 diabetes mellitus without complications |
-| [Anxiety](https://autoicdapi.com/icd10/condition/anxiety) | F41.1 | Generalized anxiety disorder |
-| [Depression](https://autoicdapi.com/icd10/condition/depression) | F32.9 | Major depressive disorder, single episode |
-| [Low Back Pain](https://autoicdapi.com/icd10/condition/back-pain) | M54.5 | Low back pain |
-| [COPD](https://autoicdapi.com/icd10/condition/copd) | J44.9 | Chronic obstructive pulmonary disease |
-| [Heart Failure](https://autoicdapi.com/icd10/condition/heart-failure) | I50.9 | Heart failure, unspecified |
-| [UTI](https://autoicdapi.com/icd10/condition/urinary-tract-infection) | N39.0 | Urinary tract infection |
-| [Pneumonia](https://autoicdapi.com/icd10/condition/pneumonia) | J18.9 | Pneumonia, unspecified organism |
-| [Atrial Fibrillation](https://autoicdapi.com/icd10/condition/atrial-fibrillation) | I48.91 | Unspecified atrial fibrillation |
+| [Hypertension](https://autoicdapi.com/reference/icd-10/condition/hypertension) | I10 | Essential (primary) hypertension |
+| [Type 2 Diabetes](https://autoicdapi.com/reference/icd-10/condition/diabetes) | E11.9 | Type 2 diabetes mellitus without complications |
+| [Anxiety](https://autoicdapi.com/reference/icd-10/condition/anxiety) | F41.1 | Generalized anxiety disorder |
+| [Depression](https://autoicdapi.com/reference/icd-10/condition/depression) | F32.9 | Major depressive disorder, single episode |
+| [Low Back Pain](https://autoicdapi.com/reference/icd-10/condition/back-pain) | M54.5 | Low back pain |
+| [COPD](https://autoicdapi.com/reference/icd-10/condition/copd) | J44.9 | Chronic obstructive pulmonary disease |
+| [Heart Failure](https://autoicdapi.com/reference/icd-10/condition/heart-failure) | I50.9 | Heart failure, unspecified |
+| [UTI](https://autoicdapi.com/reference/icd-10/condition/urinary-tract-infection) | N39.0 | Urinary tract infection |
+| [Pneumonia](https://autoicdapi.com/reference/icd-10/condition/pneumonia) | J18.9 | Pneumonia, unspecified organism |
+| [Atrial Fibrillation](https://autoicdapi.com/reference/icd-10/condition/atrial-fibrillation) | I48.91 | Unspecified atrial fibrillation |
 
-Browse the full [ICD-10-CM Code Directory](https://autoicdapi.com/icd10) or find codes by [condition](https://autoicdapi.com/icd10/condition).
+Browse the full [ICD-10-CM Code Directory](https://autoicdapi.com/reference/icd-10) or find codes by [condition](https://autoicdapi.com/reference/icd-10/condition).
 
 ## Configuration
 
@@ -303,10 +303,10 @@ Browse the full [ICD-10-CM Code Directory](https://autoicdapi.com/icd10) or find
 
 - **AutoICD API** — [autoicdapi.com](https://autoicdapi.com)
 - **API Documentation** — [autoicdapi.com/docs](https://autoicdapi.com/docs)
-- **ICD-10-CM Code Directory** — [autoicdapi.com/icd10](https://autoicdapi.com/icd10) — Browse all 74,000+ codes
-- **ICD-11 Code Directory** — [autoicdapi.com/icd11](https://autoicdapi.com/icd11) — Browse the WHO ICD-11 MMS hierarchy
+- **ICD-10-CM Code Directory** — [autoicdapi.com/reference/icd-10](https://autoicdapi.com/reference/icd-10) — Browse all 74,000+ codes
+- **ICD-11 Code Directory** — [autoicdapi.com/reference/icd-11](https://autoicdapi.com/reference/icd-11) — Browse the WHO ICD-11 MMS hierarchy
 - **ICD-10 ↔ ICD-11 Crosswalk** — [autoicdapi.com/icd10-to-icd11](https://autoicdapi.com/icd10-to-icd11) — Map codes between revisions
-- **ICD-10 Codes by Condition** — [autoicdapi.com/icd10/condition](https://autoicdapi.com/icd10/condition) — Find codes for common conditions
+- **ICD-10 Codes by Condition** — [autoicdapi.com/reference/icd-10/condition](https://autoicdapi.com/reference/icd-10/condition) — Find codes for common conditions
 - **TypeScript SDK** — [npmjs.com/package/autoicd](https://www.npmjs.com/package/autoicd)
 - **Python SDK** — [pypi.org/project/autoicd](https://pypi.org/project/autoicd/)
 - **SNOMED CT & UMLS Cross-References** — [autoicdapi.com/snomed-ct-umls](https://autoicdapi.com/snomed-ct-umls)
