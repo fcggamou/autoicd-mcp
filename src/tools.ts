@@ -8,7 +8,6 @@ import {
   formatAnonymizeResponse,
   formatICD11SearchResponse,
   formatICD11CodeDetail,
-  formatICFCodingResponse,
   formatICFCodeDetail,
   formatICFSearchResponse,
   formatICFCoreSetResponse,
@@ -255,41 +254,6 @@ export function registerTools(server: McpServer, client: AutoICD): void {
   );
 
   // ─── ICF Tools ───
-
-  server.registerTool(
-    "icf_code",
-    {
-      title: "Code Clinical Text to ICF Categories",
-      description:
-        "Code clinical text to ICF categories with cross-references to ICD-10, ICD-11, SNOMED CT, and UMLS",
-      inputSchema: {
-        text: z
-          .string()
-          .min(1)
-          .describe("Clinical text to code to ICF categories"),
-        top_k: z
-          .number()
-          .int()
-          .min(1)
-          .max(25)
-          .default(5)
-          .describe("Max ICF codes per entity (default: 5)"),
-      },
-      annotations: {
-        readOnlyHint: true,
-        destructiveHint: false,
-        idempotentHint: true,
-      },
-    },
-    async (args) => {
-      try {
-        const result = await client.icf.code(args.text, { topK: args.top_k });
-        return ok(formatICFCodingResponse(result));
-      } catch (error) {
-        return fail(error);
-      }
-    }
-  );
 
   server.registerTool(
     "icf_lookup",

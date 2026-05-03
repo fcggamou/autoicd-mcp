@@ -7,7 +7,6 @@ import type {
   AnonymizeResponse,
   ICD11CodeSearchResponse,
   ICD11CodeDetailFull,
-  ICFCodingResponse,
   ICFCodeDetail,
   ICFSearchResponse,
   ICFCoreSetResult,
@@ -339,38 +338,6 @@ function componentLabel(component: ICFComponent | string): string {
     default:
       return component;
   }
-}
-
-export function formatICFCodingResponse(response: ICFCodingResponse): string {
-  const lines: string[] = [];
-  lines.push("## ICF Coding Results\n");
-  lines.push(`**Entities found:** ${response.entity_count}\n`);
-
-  if (response.results.length === 0) {
-    lines.push("No functional entities detected in the input text.");
-    return lines.join("\n");
-  }
-
-  for (let i = 0; i < response.results.length; i++) {
-    const entity = response.results[i];
-    lines.push(`### ${i + 1}. ${entity.entity_text}\n`);
-
-    if (entity.codes.length > 0) {
-      lines.push("| Rank | Code | Description | Component | Confidence | Score |");
-      lines.push("|------|------|-------------|-----------|------------|-------|");
-      for (let j = 0; j < entity.codes.length; j++) {
-        const match = entity.codes[j];
-        const score = (match.similarity * 100).toFixed(1);
-        lines.push(
-          `| ${j + 1} | \`${match.code}\` | ${match.description} | ${componentLabel(match.component)} | ${match.confidence} | ${score}% |`
-        );
-      }
-    }
-
-    lines.push("");
-  }
-
-  return lines.join("\n");
 }
 
 export function formatICFCodeDetail(detail: ICFCodeDetail): string {

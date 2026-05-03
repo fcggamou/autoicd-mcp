@@ -183,18 +183,6 @@ De-identify Protected Health Information (PHI) in clinical text.
 
 Detects and replaces names, dates, SSNs, phone numbers, emails, addresses, MRNs, and ages with type labels like `[NAME]`, `[DATE]`, `[SSN]`.
 
-### `icf_code`
-
-Code clinical text to WHO ICF functioning categories.
-
-**Parameters:**
-- `text` (required) — Clinical text describing functional status, disabilities, or impairments
-- `top_k` (optional, 1-25, default: 5) — Number of top ICF candidates per entity
-
-**Example prompts:**
-- _"Code this functional assessment to ICF: Patient has difficulty walking and limited grip strength after stroke"_
-- _"What ICF codes apply to: Patient with reduced mobility, cognitive impairment, and difficulty with self-care"_
-
 ### `icf_lookup`
 
 Look up details for a specific ICF code.
