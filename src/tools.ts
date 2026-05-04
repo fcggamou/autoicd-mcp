@@ -16,6 +16,7 @@ import {
   formatLOINCCodingResponse,
   formatAuditResponse,
   formatTranslateResponse,
+  formatReferenceCodeRecord,
   formatError,
 } from "./format.js";
 
@@ -544,6 +545,37 @@ export function registerTools(server: McpServer, client: AutoICD): void {
           },
         });
         return ok(formatAuditResponse(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "reference_lookup",
+    {
+      title: "Unified Reference Lookup",
+      description:
+        "Look up canonical reference data for a code in any supported coding system (ICD-10-CM, ICD-11, ICF, LOINC) through a single tool. Returns the same detail payload as the per-system tools (get_code, get_icd11_code, icf_lookup, loinc_lookup), which remain available but are now deprecated.",
+      inputSchema: {
+        system: z
+          .enum(["icd-10-cm", "icd-11", "icf", "loinc"])
+          .describe("Coding system slug."),
+        code: z
+          .string()
+          .min(1)
+          .describe("Code to look up (e.g., 'I50.23' for ICD-10-CM, '5A11' for ICD-11, 'b730' for ICF, '4548-4' for LOINC)."),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.reference.lookup(args.system, args.code);
+        return ok(formatReferenceCodeRecord(result));
       } catch (error) {
         return fail(error);
       }

@@ -16,6 +16,7 @@ import type {
   LOINCCodingResponse,
   AuditResponse,
   TranslateResponse,
+  ReferenceCodeRecord,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -719,4 +720,25 @@ export function formatError(error: unknown): string {
     return `**Error.** ${error.message}`;
   }
   return "**Unknown error.** An unexpected error occurred.";
+}
+
+const REFERENCE_SYSTEM_LABELS: Record<ReferenceCodeRecord["system"], string> = {
+  "icd-10-cm": "ICD-10-CM",
+  "icd-11": "ICD-11",
+  "icf": "ICF",
+  "loinc": "LOINC",
+};
+
+export function formatReferenceCodeRecord(result: ReferenceCodeRecord): string {
+  const header = `## ${REFERENCE_SYSTEM_LABELS[result.system]} reference (${result.code})\n`;
+  switch (result.system) {
+    case "icd-10-cm":
+      return header + formatCodeDetail(result.record);
+    case "icd-11":
+      return header + formatICD11CodeDetail(result.record);
+    case "icf":
+      return header + formatICFCodeDetail(result.record);
+    case "loinc":
+      return header + formatLOINCCodeDetail(result.record);
+  }
 }
