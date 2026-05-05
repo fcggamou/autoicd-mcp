@@ -17,6 +17,7 @@ import {
   formatAuditResponse,
   formatTranslateResponse,
   formatReferenceCodeRecord,
+  formatReferenceSearchResponse,
   formatError,
 } from "./format.js";
 
@@ -556,15 +557,17 @@ export function registerTools(server: McpServer, client: AutoICD): void {
     {
       title: "Unified Reference Lookup",
       description:
-        "Look up canonical reference data for a code in any supported coding system (ICD-10-CM, ICD-11, ICF, LOINC) through a single tool. Returns the same detail payload as the per-system tools (get_code, get_icd11_code, icf_lookup, loinc_lookup), which remain available but are now deprecated.",
+        "Look up canonical reference data for a code in any supported coding system (ICD-10-CM, ICD-11, ICF, LOINC, SNOMED CT, UMLS, RxNorm) through a single tool. Returns the same detail payload as the per-system tools (get_code, get_icd11_code, icf_lookup, loinc_lookup), which remain available but are now deprecated. SNOMED/UMLS/RxNorm records include cross-references to the other systems.",
       inputSchema: {
         system: z
-          .enum(["icd-10-cm", "icd-11", "icf", "loinc"])
+          .enum(["icd-10-cm", "icd-11", "icf", "loinc", "snomed-ct", "umls", "rxnorm"])
           .describe("Coding system slug."),
         code: z
           .string()
           .min(1)
-          .describe("Code to look up (e.g., 'I50.23' for ICD-10-CM, '5A11' for ICD-11, 'b730' for ICF, '4548-4' for LOINC)."),
+          .describe(
+            "Code in the chosen system (e.g., 'I50.23' for ICD-10-CM, '5A11' for ICD-11, 'b730' for ICF, '4548-4' for LOINC, '44054006' for SNOMED CT, 'C0011860' for UMLS, '860975' for RxNorm).",
+          ),
       },
       annotations: {
         readOnlyHint: true,
@@ -576,6 +579,46 @@ export function registerTools(server: McpServer, client: AutoICD): void {
       try {
         const result = await client.reference.lookup(args.system, args.code);
         return ok(formatReferenceCodeRecord(result));
+      } catch (error) {
+        return fail(error);
+      }
+    }
+  );
+
+  server.registerTool(
+    "reference_search",
+    {
+      title: "Search SNOMED CT, UMLS, or RxNorm",
+      description:
+        "Free-text search the Neon-backed reference vocabularies (SNOMED CT, UMLS, RxNorm). Returns matching codes with display labels and a system-specific `meta` field (semantic tag for SNOMED, term type for RxNorm). JSON-backed systems (ICD-10-CM, ICD-11, ICF, LOINC) keep their per-system search tools (search_codes, search_icd11_codes, icf_search, loinc_search).",
+      inputSchema: {
+        system: z
+          .enum(["snomed-ct", "umls", "rxnorm"])
+          .describe("Coding system to search."),
+        query: z
+          .string()
+          .min(1)
+          .describe("Free-text search query."),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(100)
+          .default(20)
+          .describe("Maximum results (default: 20)."),
+      },
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+      },
+    },
+    async (args) => {
+      try {
+        const result = await client.reference.search(args.system, args.query, {
+          limit: args.limit,
+        });
+        return ok(formatReferenceSearchResponse(result));
       } catch (error) {
         return fail(error);
       }

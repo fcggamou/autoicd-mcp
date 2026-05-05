@@ -1,8 +1,14 @@
 # AutoICD MCP Server
 
-> Give AI assistants the power of medical coding — ICD-10-CM, ICD-11, and ICF diagnosis and functioning coding, code search, crosswalk, Core Sets, and PHI de-identification via the [AutoICD API](https://autoicdapi.com).
+> Give AI assistants the power of medical coding — ICD-10-CM, ICD-11, ICF, and LOINC diagnosis and functioning coding, chart audit (HCC gap capture, RADV, specificity, denial risk), cross-standard translate, unified reference lookup across ICD-10, ICD-11, ICF, LOINC, SNOMED CT, UMLS, and RxNorm, plus PHI de-identification via the [AutoICD API](https://autoicdapi.com).
 
-An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for AI-powered ICD-10, ICD-11, and ICF medical coding automation.
+An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for AI-powered medical coding, audit, and terminology lookup.
+
+## What's new — 2026-05-05
+
+- **`reference_lookup`** now covers SNOMED CT, UMLS, and RxNorm in addition to ICD-10-CM, ICD-11, ICF, and LOINC.
+- **`reference_search`** — new tool for free-text search of SNOMED CT, UMLS, and RxNorm.
+- The unified reference resource gives every record `cross_references` keyed by target system, so AI agents can pivot across vocabularies without extra calls.
 
 ## Why AutoICD API?
 
@@ -240,6 +246,36 @@ Translate a code between healthcare coding systems. Forward from ICD-10 to ICD-1
 - _"Show me the ICF categories that map to ICD-10 I63.9."_
 
 Targets not reachable from the source are returned in `unsupported_targets` rather than as errors, so a broad target list is safe.
+
+### `reference_lookup`
+
+Look up canonical reference data for a code in any supported coding system through a single tool. Returns the same detail payload as the per-system tools (`get_code`, `get_icd11_code`, `icf_lookup`, `loinc_lookup`), which remain available but are now deprecated.
+
+**Parameters:**
+- `system` (required) — One of `"icd-10-cm"`, `"icd-11"`, `"icf"`, `"loinc"`, `"snomed-ct"`, `"umls"`, `"rxnorm"`.
+- `code` (required) — Code in the chosen system.
+
+**Example prompts:**
+- _"Look up SNOMED CT concept 44054006."_
+- _"What is UMLS CUI C0011860?"_
+- _"Show me the RxNorm record for 860975 (metformin)."_
+- _"Use reference_lookup to get the canonical record for ICD-11 5A11."_
+
+SNOMED, UMLS, and RxNorm records carry `cross_references` to ICD-10, ICD-11, LOINC, and each other so agents can pivot across vocabularies without extra calls.
+
+### `reference_search`
+
+Free-text search the Neon-backed reference vocabularies (SNOMED CT, UMLS, RxNorm). Returns matching codes with display labels and a system-specific `meta` field (semantic tag for SNOMED, term type for RxNorm). JSON-backed systems (ICD-10-CM, ICD-11, ICF, LOINC) keep their per-system search tools.
+
+**Parameters:**
+- `system` (required) — One of `"snomed-ct"`, `"umls"`, `"rxnorm"`.
+- `query` (required) — Free-text search query.
+- `limit` (optional, 1-100, default: 20) — Maximum results.
+
+**Example prompts:**
+- _"Search SNOMED CT for 'chronic systolic heart failure'."_
+- _"Find UMLS concepts related to metformin."_
+- _"Look up RxNorm codes for 'lisinopril 10 mg tablet'."_
 
 ### `audit_clinical_text`
 

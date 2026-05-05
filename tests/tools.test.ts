@@ -152,15 +152,30 @@ describe("registerTools", () => {
     registerTools(server, client);
   });
 
-  it("registers all 6 tools", () => {
+  it("registers all advertised tools", () => {
     const tools = (server as any)._registeredTools as Record<string, any>;
-    expect(tools["code_diagnosis"]).toBeDefined();
-    expect(tools["search_codes"]).toBeDefined();
-    expect(tools["get_code"]).toBeDefined();
-    expect(tools["search_icd11_codes"]).toBeDefined();
-    expect(tools["get_icd11_code"]).toBeDefined();
-    expect(tools["anonymize"]).toBeDefined();
-    expect(Object.keys(tools)).toHaveLength(6);
+    const expected = [
+      "code_diagnosis",
+      "search_codes",
+      "get_code",
+      "search_icd11_codes",
+      "get_icd11_code",
+      "anonymize",
+      "icf_lookup",
+      "icf_search",
+      "icf_core_set",
+      "loinc_code",
+      "loinc_lookup",
+      "loinc_search",
+      "audit_clinical_text",
+      "reference_lookup",
+      "reference_search",
+      "translate_code",
+    ];
+    for (const name of expected) {
+      expect(tools[name]).toBeDefined();
+    }
+    expect(Object.keys(tools).sort()).toEqual([...expected].sort());
   });
 
   describe("code_diagnosis", () => {

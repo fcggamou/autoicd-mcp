@@ -17,6 +17,10 @@ import type {
   AuditResponse,
   TranslateResponse,
   ReferenceCodeRecord,
+  ReferenceSearchResponse,
+  SnomedCodeDetail,
+  UmlsCodeDetail,
+  RxnormCodeDetail,
 } from "autoicd-js";
 import {
   AutoICDError,
@@ -727,6 +731,15 @@ const REFERENCE_SYSTEM_LABELS: Record<ReferenceCodeRecord["system"], string> = {
   "icd-11": "ICD-11",
   "icf": "ICF",
   "loinc": "LOINC",
+  "snomed-ct": "SNOMED CT",
+  "umls": "UMLS",
+  "rxnorm": "RxNorm",
+};
+
+const SEARCH_SYSTEM_LABELS: Record<ReferenceSearchResponse["system"], string> = {
+  "snomed-ct": "SNOMED CT",
+  "umls": "UMLS",
+  "rxnorm": "RxNorm",
 };
 
 export function formatReferenceCodeRecord(result: ReferenceCodeRecord): string {
@@ -740,5 +753,94 @@ export function formatReferenceCodeRecord(result: ReferenceCodeRecord): string {
       return header + formatICFCodeDetail(result.record);
     case "loinc":
       return header + formatLOINCCodeDetail(result.record);
+    case "snomed-ct":
+      return header + formatSnomedCodeDetail(result.record);
+    case "umls":
+      return header + formatUmlsCodeDetail(result.record);
+    case "rxnorm":
+      return header + formatRxnormCodeDetail(result.record);
   }
+}
+
+function formatCrossReferences(xrefs: Record<string, string[]> | undefined): string[] {
+  if (!xrefs) return [];
+  const entries = Object.entries(xrefs).filter(([, ids]) => ids && ids.length > 0);
+  if (entries.length === 0) return [];
+  const lines: string[] = ["", "**Cross-references:**"];
+  for (const [source, ids] of entries) {
+    lines.push(`- **${sourceLabel(source)}:** ${ids.join(", ")}`);
+  }
+  return lines;
+}
+
+export function formatSnomedCodeDetail(detail: SnomedCodeDetail): string {
+  const lines: string[] = [];
+  lines.push(`## \`${detail.concept_id}\` — ${detail.preferred_term}\n`);
+  lines.push(`**Fully Specified Name:** ${detail.fsn}`);
+  if (detail.semantic_tag) lines.push(`**Semantic tag:** ${detail.semantic_tag}`);
+  lines.push(`**Active:** ${detail.active ? "Yes" : "No"}`);
+  if (detail.synonyms.length > 0) {
+    lines.push(`\n**Synonyms:** ${detail.synonyms.join(", ")}`);
+  }
+  lines.push(...formatCrossReferences(detail.cross_references));
+  return lines.join("\n");
+}
+
+export function formatUmlsCodeDetail(detail: UmlsCodeDetail): string {
+  const lines: string[] = [];
+  lines.push(`## \`${detail.cui}\` — ${detail.preferred_name}\n`);
+  if (detail.semantic_types.length > 0) {
+    lines.push(`**Semantic types:** ${detail.semantic_types.join(", ")}`);
+  }
+  if (detail.atoms.length > 0) {
+    lines.push(`\n**Source atoms (${detail.atoms.length}):**`);
+    lines.push("| Source | Code | Type | Description |");
+    lines.push("|--------|------|------|-------------|");
+    for (const atom of detail.atoms.slice(0, 25)) {
+      lines.push(
+        `| ${atom.source_vocabulary} | \`${atom.source_code}\` | ${atom.term_type} | ${atom.description} |`,
+      );
+    }
+    if (detail.atoms.length > 25) {
+      lines.push(`_…${detail.atoms.length - 25} more atoms omitted_`);
+    }
+  }
+  lines.push(...formatCrossReferences(detail.cross_references));
+  return lines.join("\n");
+}
+
+export function formatRxnormCodeDetail(detail: RxnormCodeDetail): string {
+  const lines: string[] = [];
+  lines.push(`## \`${detail.rxcui}\` — ${detail.name}\n`);
+  if (detail.tty) lines.push(`**Term type:** ${detail.tty}`);
+  if (detail.language) lines.push(`**Language:** ${detail.language}`);
+  if (detail.synonyms.length > 0) {
+    lines.push(`\n**Synonyms:** ${detail.synonyms.join(", ")}`);
+  }
+  lines.push(...formatCrossReferences(detail.cross_references));
+  return lines.join("\n");
+}
+
+export function formatReferenceSearchResponse(response: ReferenceSearchResponse): string {
+  const label = SEARCH_SYSTEM_LABELS[response.system];
+  const lines: string[] = [];
+  lines.push(`## ${label} search results\n`);
+  lines.push(`**Query:** "${response.query}" — **${response.count}** result(s)\n`);
+
+  if (response.results.length === 0) {
+    lines.push("No matching codes found.");
+    return lines.join("\n");
+  }
+
+  const metaHeader = response.system === "snomed-ct"
+    ? "Semantic Tag"
+    : response.system === "rxnorm"
+      ? "Term Type"
+      : "Meta";
+  lines.push(`| Code | Label | ${metaHeader} |`);
+  lines.push("|------|-------|------|");
+  for (const hit of response.results) {
+    lines.push(`| \`${hit.code}\` | ${hit.label} | ${hit.meta ?? "—"} |`);
+  }
+  return lines.join("\n");
 }
