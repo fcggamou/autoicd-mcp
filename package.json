@@ -1,7 +1,7 @@
 {
   "name": "autoicd-mcp",
   "version": "0.8.0",
-  "description": "MCP server for medical coding — give AI assistants the ability to code clinical text to ICD-10-CM, ICD-11, ICF, and LOINC, audit charts for HCC gap capture / RADV / specificity / denial risk, translate between coding systems, and look up canonical reference data for ICD-10, ICD-11, ICF, LOINC, SNOMED CT, UMLS, and RxNorm. Works with Claude Desktop, Cursor, VS Code, Windsurf, and any MCP-compatible client via the AutoICD API.",
+  "description": "MCP server for medical coding - give AI assistants the ability to code clinical text to ICD-10-CM, ICD-11, ICF, and LOINC, audit charts for HCC gap capture / RADV / specificity / denial risk, translate between coding systems, and look up canonical reference data for ICD-10, ICD-11, ICF, LOINC, SNOMED CT, UMLS, and RxNorm. Works with Claude Desktop, Cursor, VS Code, Windsurf, and any MCP-compatible client via the AutoICD API.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

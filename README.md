@@ -1,13 +1,13 @@
 # AutoICD MCP Server
 
-> Give AI assistants the power of medical coding — ICD-10-CM, ICD-11, ICF, and LOINC diagnosis and functioning coding, chart audit (HCC gap capture, RADV, specificity, denial risk), cross-standard translate, unified reference lookup across ICD-10, ICD-11, ICF, LOINC, SNOMED CT, UMLS, and RxNorm, plus PHI de-identification via the [AutoICD API](https://autoicdapi.com).
+> Give AI assistants the power of medical coding - ICD-10-CM, ICD-11, ICF, and LOINC diagnosis and functioning coding, chart audit (HCC gap capture, RADV, specificity, denial risk), cross-standard translate, unified reference lookup across ICD-10, ICD-11, ICF, LOINC, SNOMED CT, UMLS, and RxNorm, plus PHI de-identification via the [AutoICD API](https://autoicdapi.com).
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that connects AI assistants like **Claude Desktop**, **Cursor**, **VS Code**, and **Windsurf** to the AutoICD API for AI-powered medical coding, audit, and terminology lookup.
 
-## What's new — 2026-05-05
+## What's new - 2026-05-05
 
 - **`reference_lookup`** now covers SNOMED CT, UMLS, and RxNorm in addition to ICD-10-CM, ICD-11, ICF, and LOINC.
-- **`reference_search`** — new tool for free-text search of SNOMED CT, UMLS, and RxNorm.
+- **`reference_search`** - new tool for free-text search of SNOMED CT, UMLS, and RxNorm.
 - The unified reference resource gives every record `cross_references` keyed by target system, so AI agents can pivot across vocabularies without extra calls.
 
 ## Why AutoICD API?
@@ -108,9 +108,9 @@ Add to your Windsurf MCP configuration:
 Extract medical diagnoses from clinical text and map them to ICD-10-CM codes.
 
 **Parameters:**
-- `text` (required) — Clinical text to process (progress notes, discharge summaries, etc.)
-- `top_k` (optional, 1-25, default: 5) — Number of top ICD-10 candidates per entity
-- `include_negated` (optional, default: true) — Include negated entities in results
+- `text` (required) - Clinical text to process (progress notes, discharge summaries, etc.)
+- `top_k` (optional, 1-25, default: 5) - Number of top ICD-10 candidates per entity
+- `include_negated` (optional, default: true) - Include negated entities in results
 
 **Example prompts:**
 - _"Code this note: Patient presents with acute lower back pain radiating to the left leg. Denies any numbness or tingling."_
@@ -124,9 +124,9 @@ The tool will extract medical entities, detect negations ("denies numbness"), an
 Search the ICD-10-CM 2025 code set by description.
 
 **Parameters:**
-- `query` (required) — Search text to match against code descriptions
-- `limit` (optional, 1-100, default: 20) — Maximum results
-- `offset` (optional, default: 0) — Pagination offset
+- `query` (required) - Search text to match against code descriptions
+- `limit` (optional, 1-100, default: 20) - Maximum results
+- `offset` (optional, default: 0) - Pagination offset
 
 **Example prompts:**
 - _"Search for ICD-10 codes related to congestive heart failure"_
@@ -139,7 +139,7 @@ Search the ICD-10-CM 2025 code set by description.
 Get comprehensive details for a specific ICD-10-CM code.
 
 **Parameters:**
-- `code` (required) — ICD-10-CM code (e.g., "E11.9", "I10", "J44.1")
+- `code` (required) - ICD-10-CM code (e.g., "E11.9", "I10", "J44.1")
 
 **Example prompts:**
 - _"Look up the details for ICD-10 code M54.5"_
@@ -154,8 +154,8 @@ Returns descriptions, billable status, SNOMED CT and UMLS synonyms, parent/child
 Search the ICD-11 code set by description.
 
 **Parameters:**
-- `query` (required) — Search text to match against ICD-11 code descriptions
-- `limit` (optional, 1-100, default: 10) — Maximum results
+- `query` (required) - Search text to match against ICD-11 code descriptions
+- `limit` (optional, 1-100, default: 10) - Maximum results
 
 **Example prompts:**
 - _"Search for ICD-11 codes related to diabetes"_
@@ -167,7 +167,7 @@ Search the ICD-11 code set by description.
 Get comprehensive details for a specific ICD-11 code, including ICD-10 crosswalk mappings.
 
 **Parameters:**
-- `code` (required) — ICD-11 code (e.g., "5A11", "BA00", "CA40.0")
+- `code` (required) - ICD-11 code (e.g., "5A11", "BA00", "CA40.0")
 
 **Example prompts:**
 - _"Look up ICD-11 code 5A11"_
@@ -181,7 +181,7 @@ Returns descriptions, Foundation URI, synonyms, parent/child hierarchy, chapter 
 De-identify Protected Health Information (PHI) in clinical text.
 
 **Parameters:**
-- `text` (required) — Clinical text containing PHI
+- `text` (required) - Clinical text containing PHI
 
 **Example prompts:**
 - _"Remove all patient identifiers from this note: John Smith (DOB 03/15/1980) was seen at 123 Main St..."_
@@ -194,7 +194,7 @@ Detects and replaces names, dates, SSNs, phone numbers, emails, addresses, MRNs,
 Look up details for a specific ICF code.
 
 **Parameters:**
-- `code` (required) — ICF code (e.g., "b730", "d450", "s110")
+- `code` (required) - ICF code (e.g., "b730", "d450", "s110")
 
 **Example prompts:**
 - _"Look up ICF code b730"_
@@ -208,8 +208,8 @@ Returns title, definition, component, chapter, parent/child hierarchy, inclusion
 Search ICF codes by keyword.
 
 **Parameters:**
-- `query` (required) — Search text to match against ICF code descriptions
-- `limit` (optional, 1-100, default: 20) — Maximum results
+- `query` (required) - Search text to match against ICF code descriptions
+- `limit` (optional, 1-100, default: 20) - Maximum results
 
 **Example prompts:**
 - _"Search for ICF codes related to mobility"_
@@ -218,10 +218,10 @@ Search ICF codes by keyword.
 
 ### `icf_core_set`
 
-Get the ICF Core Set for an ICD-10 diagnosis — a curated list of ICF categories relevant to a specific condition.
+Get the ICF Core Set for an ICD-10 diagnosis - a curated list of ICF categories relevant to a specific condition.
 
 **Parameters:**
-- `icd10_code` (required) — ICD-10-CM code (e.g., "E11.9", "I63.9", "G35")
+- `icd10_code` (required) - ICD-10-CM code (e.g., "E11.9", "I63.9", "G35")
 
 **Example prompts:**
 - _"What ICF Core Set applies to diabetes (E11.9)?"_
@@ -235,9 +235,9 @@ Returns condition name, brief Core Set (key categories), and comprehensive Core 
 Translate a code between healthcare coding systems. Forward from ICD-10 to ICD-11, SNOMED CT, UMLS, and ICF, plus reverse ICD-11 → ICD-10 and ICF → ICD-10. Built on CMS-published crosswalks, code-level SNOMED / UMLS concept IDs, and WHO ICF Core Sets.
 
 **Parameters:**
-- `code` (required) — The source code (e.g., "E11.9" for ICD-10, "5A11" for ICD-11).
-- `system` (required) — `"icd10"`, `"icd11"`, `"snomed"`, `"umls"`, or `"icf"`.
-- `to` (optional) — Array of target systems. Omit for every system reachable from the source.
+- `code` (required) - The source code (e.g., "E11.9" for ICD-10, "5A11" for ICD-11).
+- `system` (required) - `"icd10"`, `"icd11"`, `"snomed"`, `"umls"`, or `"icf"`.
+- `to` (optional) - Array of target systems. Omit for every system reachable from the source.
 
 **Example prompts:**
 - _"Translate ICD-10 E11.9 to ICD-11 and SNOMED."_
@@ -252,8 +252,8 @@ Targets not reachable from the source are returned in `unsupported_targets` rath
 Look up canonical reference data for a code in any supported coding system through a single tool. Returns the same detail payload as the per-system tools (`get_code`, `get_icd11_code`, `icf_lookup`, `loinc_lookup`), which remain available but are now deprecated.
 
 **Parameters:**
-- `system` (required) — One of `"icd-10-cm"`, `"icd-11"`, `"icf"`, `"loinc"`, `"snomed-ct"`, `"umls"`, `"rxnorm"`.
-- `code` (required) — Code in the chosen system.
+- `system` (required) - One of `"icd-10-cm"`, `"icd-11"`, `"icf"`, `"loinc"`, `"snomed-ct"`, `"umls"`, `"rxnorm"`.
+- `code` (required) - Code in the chosen system.
 
 **Example prompts:**
 - _"Look up SNOMED CT concept 44054006."_
@@ -268,9 +268,9 @@ SNOMED, UMLS, and RxNorm records carry `cross_references` to ICD-10, ICD-11, LOI
 Free-text search the Neon-backed reference vocabularies (SNOMED CT, UMLS, RxNorm). Returns matching codes with display labels and a system-specific `meta` field (semantic tag for SNOMED, term type for RxNorm). JSON-backed systems (ICD-10-CM, ICD-11, ICF, LOINC) keep their per-system search tools.
 
 **Parameters:**
-- `system` (required) — One of `"snomed-ct"`, `"umls"`, `"rxnorm"`.
-- `query` (required) — Free-text search query.
-- `limit` (optional, 1-100, default: 20) — Maximum results.
+- `system` (required) - One of `"snomed-ct"`, `"umls"`, `"rxnorm"`.
+- `query` (required) - Free-text search query.
+- `limit` (optional, 1-100, default: 20) - Maximum results.
 
 **Example prompts:**
 - _"Search SNOMED CT for 'chronic systolic heart failure'."_
@@ -282,11 +282,11 @@ Free-text search the Neon-backed reference vocabularies (SNOMED CT, UMLS, RxNorm
 Audit a chart against submitted codes. Surfaces missed HCCs with RAF-weighted revenue estimates, unsupported codes (RADV exposure), specificity upgrades, denial risk flags, and a reconciled problem list. Every finding carries extractive evidence spans.
 
 **Parameters:**
-- `text` (required) — Clinical text (progress note, discharge summary, H&P).
-- `codes` (required) — Array of `{ code, kind }` the clinician submitted (e.g., `[{ "code": "E11.9", "kind": "icd10" }]`).
-- `capabilities` (optional) — Subset of `["hcc", "radv", "specificity", "denial", "problem_list"]`. Defaults to all five.
-- `patient_age`, `patient_sex`, `coverage` (optional) — Enrich denial and HCC reasoning.
-- `hcc_model` (optional) — `"v22"`, `"v28"`, or `"both"` (default). Note: V24 is the ESRD-specific model and is not accepted here.
+- `text` (required) - Clinical text (progress note, discharge summary, H&P).
+- `codes` (required) - Array of `{ code, kind }` the clinician submitted (e.g., `[{ "code": "E11.9", "kind": "icd10" }]`).
+- `capabilities` (optional) - Subset of `["hcc", "radv", "specificity", "denial", "problem_list"]`. Defaults to all five.
+- `patient_age`, `patient_sex`, `coverage` (optional) - Enrich denial and HCC reasoning.
+- `hcc_model` (optional) - `"v22"`, `"v28"`, or `"both"` (default). Note: V24 is the ESRD-specific model and is not accepted here.
 
 **Example prompts:**
 - _"Audit this progress note. Codes submitted: E11.9, I50.9. Text: 68yo M, type 2 diabetes, chronic systolic CHF on furosemide, stage 3 CKD, proliferative diabetic retinopathy."_
@@ -323,30 +323,30 @@ Browse the full [ICD-10-CM Code Directory](https://autoicdapi.com/reference/icd-
 
 ## Use Cases
 
-- **EHR/EMR Integration** — Automate diagnosis coding in electronic health record workflows
-- **Medical Billing** — Accelerate revenue cycle management with AI-assisted code assignment
-- **Clinical Decision Support** — Look up ICD-10 codes and hierarchies during clinical documentation
-- **Health-Tech Development** — Build and test medical coding features with live API access in your IDE
-- **Research & Analytics** — Search and explore the ICD-10-CM code set for epidemiological analysis
-- **Compliance** — De-identify clinical text before processing or sharing
+- **EHR/EMR Integration** - Automate diagnosis coding in electronic health record workflows
+- **Medical Billing** - Accelerate revenue cycle management with AI-assisted code assignment
+- **Clinical Decision Support** - Look up ICD-10 codes and hierarchies during clinical documentation
+- **Health-Tech Development** - Build and test medical coding features with live API access in your IDE
+- **Research & Analytics** - Search and explore the ICD-10-CM code set for epidemiological analysis
+- **Compliance** - De-identify clinical text before processing or sharing
 
 ## Requirements
 
 - Node.js 18+
-- An AutoICD API key — **[Get one free at autoicdapi.com](https://autoicdapi.com)**
+- An AutoICD API key - **[Get one free at autoicdapi.com](https://autoicdapi.com)**
 
 ## Links
 
-- **AutoICD API** — [autoicdapi.com](https://autoicdapi.com)
-- **API Documentation** — [autoicdapi.com/docs](https://autoicdapi.com/docs)
-- **ICD-10-CM Code Directory** — [autoicdapi.com/reference/icd-10](https://autoicdapi.com/reference/icd-10) — Browse all 74,000+ codes
-- **ICD-11 Code Directory** — [autoicdapi.com/reference/icd-11](https://autoicdapi.com/reference/icd-11) — Browse the WHO ICD-11 MMS hierarchy
-- **ICD-10 ↔ ICD-11 Crosswalk** — [autoicdapi.com/icd10-to-icd11](https://autoicdapi.com/icd10-to-icd11) — Map codes between revisions
-- **ICD-10 Codes by Condition** — [autoicdapi.com/reference/icd-10/condition](https://autoicdapi.com/reference/icd-10/condition) — Find codes for common conditions
-- **TypeScript SDK** — [npmjs.com/package/autoicd](https://www.npmjs.com/package/autoicd)
-- **Python SDK** — [pypi.org/project/autoicd](https://pypi.org/project/autoicd/)
-- **SNOMED CT & UMLS Cross-References** — [autoicdapi.com/snomed-ct-umls](https://autoicdapi.com/snomed-ct-umls)
-- **ICD-10-CM Reference** — [CMS.gov](https://www.cms.gov/medicare/coding-billing/icd-10-codes)
+- **AutoICD API** - [autoicdapi.com](https://autoicdapi.com)
+- **API Documentation** - [autoicdapi.com/docs](https://autoicdapi.com/docs)
+- **ICD-10-CM Code Directory** - [autoicdapi.com/reference/icd-10](https://autoicdapi.com/reference/icd-10) - Browse all 74,000+ codes
+- **ICD-11 Code Directory** - [autoicdapi.com/reference/icd-11](https://autoicdapi.com/reference/icd-11) - Browse the WHO ICD-11 MMS hierarchy
+- **ICD-10 ↔ ICD-11 Crosswalk** - [autoicdapi.com/icd10-to-icd11](https://autoicdapi.com/icd10-to-icd11) - Map codes between revisions
+- **ICD-10 Codes by Condition** - [autoicdapi.com/reference/icd-10/condition](https://autoicdapi.com/reference/icd-10/condition) - Find codes for common conditions
+- **TypeScript SDK** - [npmjs.com/package/autoicd](https://www.npmjs.com/package/autoicd)
+- **Python SDK** - [pypi.org/project/autoicd](https://pypi.org/project/autoicd/)
+- **SNOMED CT & UMLS Cross-References** - [autoicdapi.com/snomed-ct-umls](https://autoicdapi.com/snomed-ct-umls)
+- **ICD-10-CM Reference** - [CMS.gov](https://www.cms.gov/medicare/coding-billing/icd-10-codes)
 
 ## License
 
