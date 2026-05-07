@@ -277,6 +277,44 @@ Free-text search the Neon-backed reference vocabularies (SNOMED CT, UMLS, RxNorm
 - _"Find UMLS concepts related to metformin."_
 - _"Look up RxNorm codes for 'lisinopril 10 mg tablet'."_
 
+### `loinc_code`
+
+Code clinical text to LOINC codes. Extracts lab tests, imaging orders, and clinical observations from free text and matches to LOINC codes.
+
+**Parameters:**
+- `text` (required) - Clinical text to code to LOINC codes (lab orders, imaging requests, observations)
+- `top_k` (optional, 1-25, default: 5) - Maximum LOINC codes per extracted entity
+
+**Example prompts:**
+- _"Code these lab orders to LOINC: CBC with diff, basic metabolic panel, hemoglobin A1c, TSH."_
+- _"What LOINC codes apply to: serum sodium, potassium, creatinine, and BUN?"_
+- _"Map this text to LOINC: 'ordered chest x-ray PA and lateral, ECG 12-lead'"_
+
+### `loinc_lookup`
+
+Get comprehensive details for a specific LOINC code, including the 6-axis classification (component, property, time, system, scale, method), definition, and cross-references.
+
+**Parameters:**
+- `code` (required) - LOINC code (e.g., "2345-7", "718-7", "4548-4")
+
+**Example prompts:**
+- _"Look up LOINC code 2345-7 (glucose)."_
+- _"What does LOINC 4548-4 mean?"_
+- _"Show me the 6-axis classification for LOINC 718-7."_
+
+### `loinc_search`
+
+Search the LOINC code directory by description text. Returns matching codes with names, classes, and types.
+
+**Parameters:**
+- `query` (required) - Search query to match against LOINC code descriptions
+- `limit` (optional, 1-100, default: 20) - Maximum results
+
+**Example prompts:**
+- _"Search LOINC for 'hemoglobin A1c'."_
+- _"Find LOINC codes for thyroid function tests."_
+- _"What are the LOINC codes for cholesterol panel?"_
+
 ### `audit_clinical_text`
 
 Audit a chart against submitted codes. Surfaces missed HCCs with RAF-weighted revenue estimates, unsupported codes (RADV exposure), specificity upgrades, denial risk flags, and a reconciled problem list. Every finding carries extractive evidence spans.
@@ -343,7 +381,7 @@ Browse the full [ICD-10-CM Code Directory](https://autoicdapi.com/reference/icd-
 - **ICD-11 Code Directory** - [autoicdapi.com/reference/icd-11](https://autoicdapi.com/reference/icd-11) - Browse the WHO ICD-11 MMS hierarchy
 - **ICD-10 ↔ ICD-11 Crosswalk** - [autoicdapi.com/icd10-to-icd11](https://autoicdapi.com/icd10-to-icd11) - Map codes between revisions
 - **ICD-10 Codes by Condition** - [autoicdapi.com/reference/icd-10/condition](https://autoicdapi.com/reference/icd-10/condition) - Find codes for common conditions
-- **TypeScript SDK** - [npmjs.com/package/autoicd](https://www.npmjs.com/package/autoicd)
+- **TypeScript SDK** - [npmjs.com/package/autoicd-js](https://www.npmjs.com/package/autoicd-js)
 - **Python SDK** - [pypi.org/project/autoicd](https://pypi.org/project/autoicd/)
 - **SNOMED CT & UMLS Cross-References** - [autoicdapi.com/snomed-ct-umls](https://autoicdapi.com/snomed-ct-umls)
 - **ICD-10-CM Reference** - [CMS.gov](https://www.cms.gov/medicare/coding-billing/icd-10-codes)
